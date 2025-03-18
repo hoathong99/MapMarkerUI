@@ -6,3 +6,19 @@ export interface LocationMark {
     label: string,
 }
 
+export interface Artical {
+    ID: string;
+    OwnerID: string;
+    List: Pin[];
+    content: string;
+    header: string;
+  }
+
+export interface Pin {
+    id: string;
+    lat: string;
+    lng: string;
+    label: string;
+    content: string;
+  }
+  

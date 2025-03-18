@@ -1,5 +1,5 @@
 import './App.css'
-import MapComponent from './components/MapDisplay/Map'
+import MapComponent from './components/MapDisplay/MapPanel'
 import { LocationMark } from './components/DTO/interfaces';
 
 const center: LocationMark = {
