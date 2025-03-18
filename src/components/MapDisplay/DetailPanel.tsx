@@ -1,16 +1,37 @@
+import { useContext } from "react";
+import { PinContext } from "../../App";
+import { Pin } from "../DTO/interfaces";
 
-const DetailPanel: React.FC = () => {
+const emptyPin: Pin = {
+  id: "",
+  lat: "0",
+  lng: "0",
+  label: "",
+  content: ""
+};
 
-    return(
+const DetailPanelComponent: React.FC = () => {
+    const pinContext = useContext(PinContext);
+    if(pinContext.selectedPin == emptyPin){
+        return(<></>)
+    }
+    return (
         <>
-        <div className="Container">
-            <div className="Header">
-
+            <div className="Container">
+                <div className="Header">
+                    {pinContext.selectedPin.label}
+                </div>
+                <div className="Body">
+                    <div>
+                        {pinContext.selectedPin.lat} lat {pinContext.selectedPin.lng} ln
+                    </div>
+                    <div>
+                        {pinContext.selectedPin.content}
+                    </div>
+                </div>
             </div>
-            <div className="Body">
-
-            </div>
-        </div>
         </>
     )
 }
+
+export default DetailPanelComponent;

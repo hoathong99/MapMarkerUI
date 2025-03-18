@@ -1,54 +1,75 @@
-import React, { useEffect, useState } from "react";
-import { AdvancedMarker, Pin, Map, APIProvider } from "@vis.gl/react-google-maps";
-import {LocationMark} from "../DTO/interfaces"
-
-interface Prop {
-    list: LocationMark[],
-    heading: string,
-    centerMark: LocationMark,
-    onSelectedPin: (location : LocationMark) => void;
-}
+import React, { useContext, useEffect, useState } from "react";
+import { AdvancedMarker, Map, APIProvider } from "@vis.gl/react-google-maps";
+import { LocationMark, Pin } from "../DTO/interfaces"
+import { ArticalContext, PinContext } from "../../App";
 
 const GOOGLE_MAPS_API_KEY = "YOUR_GOOGLE_MAPS_API_KEY"; // Replace with your API key
 
 const containerStyle = {
-    width: "100%",
-    height: "400px",
+  width: "100%",
+  height: "400px",
+};
+
+const emptyPin: Pin = {
+  id: "",
+  lat: "0",
+  lng: "0",
+  label: "",
+  content: ""
 };
 
 
-// Example list of coordinates with content
+const MapMapPanelComponent: React.FC = () => {
+  const articleContext = useContext(ArticalContext);
 
-const MapComponent: React.FC<Prop> = (input: Prop) => {
-    const locations: LocationMark[] = input.list;
-    const center: LocationMark = input.centerMark;
-    const [selectedLocation, setSelectedLocation] = useState<LocationMark | null>(null);
+  const locations: Pin[] = articleContext.selectedArtical.List;
+  const center: Pin = emptyPin;
+  const pinContext = useContext(PinContext);
 
-    useEffect(() => {
-        console.log("Component mounted");
-      }, []); // Empty dependency array -> Runs only once
+  useEffect(() => {
+    console.log(pinContext.selectedPin);
+  }, [pinContext.selectedPin]); // Empty dependency array -> Runs only once
 
-    const handleMarkerClick = (selected: LocationMark) => {
-        setSelectedLocation(selected);
-    };
+  const OnClickPin = (selected: Pin) => {
+    pinContext.setSelectedPin(selected);
+  };
 
-    return (
-        <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
-            <Map style={containerStyle} defaultCenter={{ lat: center.lat, lng: center.lng }} defaultZoom={8}>
-                {locations.map((location, index) => (
-                    <AdvancedMarker
-                        key={index}
-                        position={{ lat: location.lat, lng: location.lng }}
-                        onClick={() => handleMarkerClick(location)}
-                    >
-                        <Pin background={'blue'} borderColor={'black'} glyphColor={'white'}>
-                            {location.label}
-                        </Pin>
-                    </AdvancedMarker>
-                ))}
-            </Map>
-        </APIProvider>
-    );
+  return (
+    // <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
+    //     <Map style={containerStyle} defaultCenter={{ lat: center.lat, lng: center.lng }} defaultZoom={8}>
+    //         {locations.map((location, index) => (
+    //             <AdvancedMarker
+    //                 key={index}
+    //                 position={{ lat: location.lat, lng: location.lng }}
+    //                 onClick={() => handleMarkerClick(location)}
+    //             >
+    //                 <Pin background={'blue'} borderColor={'black'} glyphColor={'white'}>
+    //                     {location.label}
+    //                 </Pin>
+    //             </AdvancedMarker>
+    //         ))}
+    //     </Map>
+    // </APIProvider>
+
+    <>
+      <div>
+        Center: {center.label}
+      </div>
+      <ul>
+        {locations.map((item) => (
+          <li key={item.id} onClick={() => OnClickPin(item)}>
+            <div>
+              {item.label}
+              <span>{item.lat} lat {item.lng} lng</span>
+            </div>
+            <div>
+              {item.content}
+            </div>
+          </li>
+        ))}
+      </ul>
+    </>
+  );
 };
 
-export default MapComponent;
+export default MapMapPanelComponent;
