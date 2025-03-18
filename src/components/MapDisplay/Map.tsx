@@ -5,7 +5,8 @@ import {LocationMark} from "../DTO/interfaces"
 interface Prop {
     list: LocationMark[],
     heading: string,
-    centerMark: LocationMark
+    centerMark: LocationMark,
+    onSelectedPin: (location : LocationMark) => void;
 }
 
 const GOOGLE_MAPS_API_KEY = "YOUR_GOOGLE_MAPS_API_KEY"; // Replace with your API key

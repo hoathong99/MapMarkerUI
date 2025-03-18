@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import './App.css'
 import MapComponent from './components/MapDisplay/Map'
 import { LocationMark } from './components/DTO/interfaces';
@@ -18,11 +17,13 @@ const locations: LocationMark[] = [
 ];
 
 function App() {
-
+  const HandleSelectedPin = (location : LocationMark) => {
+    console.log("handle selected pin", location.label);
+  }
 
   return (
     <>
-      <MapComponent list={locations} heading={center.label} centerMark={center}>
+      <MapComponent list={locations} heading={center.label} centerMark={center} onSelectedPin={HandleSelectedPin}>
 
       </MapComponent>
     </>
