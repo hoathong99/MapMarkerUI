@@ -1,9 +1,11 @@
 import './App.css'
 import MapMapPanelComponent from './components/MapDisplay/MapPanel'
-import { Artical, generateDummyArticals, LocationMark, Pin } from './components/DTO/interfaces';
+import { Artical, generateDummyArticals, Pin, sampleArticals } from './components/DTO/interfaces';
 import MainPanelComponent from './components/MapDisplay/MainPanel';
 import DetailPanel from './components/MapDisplay/DetailPanel';
 import { createContext, useEffect, useState } from 'react';
+import { LatLngTuple } from 'leaflet';
+
 
 const emptyArtical: Artical = {
   ID: "",
@@ -22,7 +24,7 @@ const emptyPin: Pin = {
   content: ""
 };
 
-const dummyArticals = generateDummyArticals(10); // Generate 10 dummy articles
+// const dummyArticals = generateDummyArticals(10); // Generate 10 dummy articles
 
 async function fetchData(ID: string, Token: string): Promise<Artical[] | null> {
 
@@ -40,7 +42,7 @@ async function fetchData(ID: string, Token: string): Promise<Artical[] | null> {
   //   return null; // Return null on error
   // }
 
-  return dummyArticals;
+  return sampleArticals;
 }
 
 async function fetchArticals(page: number, Token: string): Promise<Artical[] | null> {
@@ -59,7 +61,7 @@ async function fetchArticals(page: number, Token: string): Promise<Artical[] | n
   //   return []; // Return [] on error
   // }
 
-  return dummyArticals;
+  return sampleArticals;
 
 }
 
@@ -88,7 +90,7 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [selectedArtical, setSelectedArtical] = useState<Artical>(emptyArtical);
   const [selectedPin, setSelectedPin] = useState<Pin>(emptyPin);
-
+  const [currentLocation, setCurrentLocation] = useState<LatLngTuple>();
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
@@ -101,8 +103,18 @@ function App() {
     };
 
     loadData();
-  }, []);
 
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          console.log(pos);
+          setCurrentLocation([pos.coords.latitude,pos.coords.longitude]) ;
+        },
+        (err) => console.error("Geolocation error:", err.message),
+        { enableHighAccuracy: true }
+      );
+    }
+  }, []);
 
   useEffect(() => {
     const loadData = async () => {
@@ -122,8 +134,8 @@ function App() {
     setPage(prevPage => prevPage + 10);
   }
 
-  const HandleSelectedPin = (location: LocationMark) => {
-    console.log("handle selected pin", location.label);
+  const HandleSelectedPin = () => {
+    
   }
 
   // const HandleSelectedArtical = (artical: Artical) => {
@@ -136,7 +148,7 @@ function App() {
         <ArticalContext.Provider value={{ selectedArtical, setSelectedArtical }}>
           <PinContext.Provider value={{ selectedPin, setSelectedPin }} >
             <MainPanelComponent onLoadMore={LoadMoreArtical} articalLst={articalLst}></MainPanelComponent>
-            <MapMapPanelComponent></MapMapPanelComponent>
+            <MapMapPanelComponent currentLocation={currentLocation}></MapMapPanelComponent>
             <DetailPanel></DetailPanel>
           </PinContext.Provider>
         </ArticalContext.Provider>

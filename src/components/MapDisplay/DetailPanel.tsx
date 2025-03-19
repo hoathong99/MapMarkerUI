@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { PinContext } from "../../App";
 import { Pin } from "../DTO/interfaces";
 
@@ -12,6 +12,9 @@ const emptyPin: Pin = {
 
 const DetailPanelComponent: React.FC = () => {
     const pinContext = useContext(PinContext);
+    useEffect(()=>{
+        console.log("selectedPin", pinContext.selectedPin);
+    },[pinContext.selectedPin])
     if(pinContext.selectedPin == emptyPin){
         return(<></>)
     }

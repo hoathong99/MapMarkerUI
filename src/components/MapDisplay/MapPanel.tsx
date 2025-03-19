@@ -1,75 +1,94 @@
-import React, { useContext, useEffect, useState } from "react";
-import { AdvancedMarker, Map, APIProvider } from "@vis.gl/react-google-maps";
-import { LocationMark, Pin } from "../DTO/interfaces"
+import { useContext, useEffect, useRef, useState } from "react";
+import { Pin } from "../DTO/interfaces";
 import { ArticalContext, PinContext } from "../../App";
-
-const GOOGLE_MAPS_API_KEY = "YOUR_GOOGLE_MAPS_API_KEY"; // Replace with your API key
-
-const containerStyle = {
-  width: "100%",
-  height: "400px",
-};
-
+import { Marker, Popup, TileLayer, useMap } from "react-leaflet";
+import { MapContainer } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import { LatLngTuple } from "leaflet";
+import L from "leaflet";
+import personIcon from "../../assets/person_pin_circle.png";
 const emptyPin: Pin = {
   id: "",
   lat: "0",
   lng: "0",
   label: "",
-  content: ""
+  content: "",
 };
 
+const customIcon = L.icon({
+  iconUrl: personIcon, // Path to your marker image
+  iconSize: [50, 50], // Size of the icon
+  iconAnchor: [16, 32], // Point where the icon is anchored (center bottom)
+  popupAnchor: [0, -32], // Popup position relative to the icon
+});
 
-const MapMapPanelComponent: React.FC = () => {
+interface Props {
+  currentLocation?: LatLngTuple;
+}
+
+function UserLocationUpdater(props: Props) {
+  const map = useMap();
+  const [markerPosition, setMarkerPosition] = useState<LatLngTuple | null>(
+    null
+  );
+  const markerRef = useRef<L.Marker | null>(null);
+  // Update marker position only when location changes
+  useEffect(() => {
+    if (props.currentLocation) {
+      map.flyTo(props.currentLocation, 14, { duration: 2 }); // Smooth transition
+      setMarkerPosition(props.currentLocation);
+    }
+  }, [props.currentLocation, map]);
+
+  return markerPosition ? (
+    <Marker
+      icon={customIcon}
+      position={markerPosition}
+      ref={(el) => {
+        if (el) markerRef.current = el;
+      }}
+    >
+      <Popup>Your Location</Popup>
+    </Marker>
+  ) : null;
+}
+
+function MapMapPanelComponent(props: Props) {
   const articleContext = useContext(ArticalContext);
-
-  const locations: Pin[] = articleContext.selectedArtical.List;
-  const center: Pin = emptyPin;
   const pinContext = useContext(PinContext);
 
-  useEffect(() => {
-    console.log(pinContext.selectedPin);
-  }, [pinContext.selectedPin]); // Empty dependency array -> Runs only once
-
+  const initialPosition: LatLngTuple = [21.035993051470584, 105.83367716525659]; // HN inital location
   const OnClickPin = (selected: Pin) => {
+    console.log("clicked on pin");
     pinContext.setSelectedPin(selected);
   };
+  // useEffect(() => {
+  //   console.log(articleContext.selectedArtical);
+  // }, [articleContext.selectedArtical]);
 
   return (
-    // <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
-    //     <Map style={containerStyle} defaultCenter={{ lat: center.lat, lng: center.lng }} defaultZoom={8}>
-    //         {locations.map((location, index) => (
-    //             <AdvancedMarker
-    //                 key={index}
-    //                 position={{ lat: location.lat, lng: location.lng }}
-    //                 onClick={() => handleMarkerClick(location)}
-    //             >
-    //                 <Pin background={'blue'} borderColor={'black'} glyphColor={'white'}>
-    //                     {location.label}
-    //                 </Pin>
-    //             </AdvancedMarker>
-    //         ))}
-    //     </Map>
-    // </APIProvider>
-
     <>
-      <div>
-        Center: {center.label}
-      </div>
-      <ul>
-        {locations.map((item) => (
-          <li key={item.id} onClick={() => OnClickPin(item)}>
-            <div>
-              {item.label}
-              <span>{item.lat} lat {item.lng} lng</span>
-            </div>
-            <div>
-              {item.content}
-            </div>
-          </li>
+      <MapContainer
+        center={initialPosition}
+        zoom={13}
+        style={{ height: "100vh", width: "60%" }}
+      >
+        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        <UserLocationUpdater
+          currentLocation={props.currentLocation}
+        ></UserLocationUpdater>
+        {articleContext.selectedArtical.List.map((item) => (
+          <Marker key={item.id} 
+                  position={[Number(item.lat), Number(item.lng)]}
+                  eventHandlers={{
+                    dblclick: (e) => {OnClickPin(item)},
+                  }}>
+            <Popup>{item.label}</Popup>
+          </Marker>
         ))}
-      </ul>
+      </MapContainer>
     </>
   );
-};
+}
 
 export default MapMapPanelComponent;
