@@ -1,11 +1,15 @@
 import './App.css'
 import MapMapPanelComponent from './components/MapDisplay/MapPanel'
-import { Artical, generateDummyArticals, Pin, sampleArticals } from './components/DTO/interfaces';
+import { Artical, Pin, sampleArticals } from './components/DTO/interfaces';
 import MainPanelComponent from './components/MapDisplay/MainPanel';
 import DetailPanel from './components/MapDisplay/DetailPanel';
 import { createContext, useEffect, useState } from 'react';
 import { LatLngTuple } from 'leaflet';
-
+import { Splitter, SplitterPanel } from 'primereact/splitter';
+import "primereact/resources/themes/soho-dark/theme.css";  // Theme (choose one)
+import "primereact/resources/primereact.min.css";  // PrimeReact core styles
+import "primeicons/primeicons.css";  // Icons
+import "primeflex/primeflex.css";  // Flex utilities (optional)
 
 const emptyArtical: Artical = {
   ID: "",
@@ -24,7 +28,6 @@ const emptyPin: Pin = {
   content: ""
 };
 
-// const dummyArticals = generateDummyArticals(10); // Generate 10 dummy articles
 
 async function fetchData(ID: string, Token: string): Promise<Artical[] | null> {
 
@@ -91,6 +94,7 @@ function App() {
   const [selectedArtical, setSelectedArtical] = useState<Artical>(emptyArtical);
   const [selectedPin, setSelectedPin] = useState<Pin>(emptyPin);
   const [currentLocation, setCurrentLocation] = useState<LatLngTuple>();
+
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
@@ -103,12 +107,11 @@ function App() {
     };
 
     loadData();
-
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           console.log(pos);
-          setCurrentLocation([pos.coords.latitude,pos.coords.longitude]) ;
+          setCurrentLocation([pos.coords.latitude, pos.coords.longitude]);
         },
         (err) => console.error("Geolocation error:", err.message),
         { enableHighAccuracy: true }
@@ -134,22 +137,22 @@ function App() {
     setPage(prevPage => prevPage + 10);
   }
 
-  const HandleSelectedPin = () => {
-    
-  }
-
-  // const HandleSelectedArtical = (artical: Artical) => {
-  //   console.log("handle selected pin", artical.header);
-  // }
-
   return (
     <>
       <div className='AppContainer'>
         <ArticalContext.Provider value={{ selectedArtical, setSelectedArtical }}>
           <PinContext.Provider value={{ selectedPin, setSelectedPin }} >
-            <MainPanelComponent onLoadMore={LoadMoreArtical} articalLst={articalLst}></MainPanelComponent>
-            <MapMapPanelComponent currentLocation={currentLocation}></MapMapPanelComponent>
-            <DetailPanel></DetailPanel>
+            <Splitter>
+              <SplitterPanel className="flex justify-content-center" size={15} minSize={10}>
+                <MainPanelComponent className="MainPanel" onLoadMore={LoadMoreArtical} articalLst={articalLst}></MainPanelComponent>
+              </SplitterPanel>
+              <SplitterPanel className="flex justify-content-center" size={70} minSize={60}>
+                <MapMapPanelComponent currentLocation={currentLocation}></MapMapPanelComponent>
+              </SplitterPanel>
+              <SplitterPanel className="flex justify-content-center">
+                <DetailPanel></DetailPanel>
+              </SplitterPanel>
+            </Splitter>
           </PinContext.Provider>
         </ArticalContext.Provider>
       </div>

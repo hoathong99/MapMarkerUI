@@ -1,4 +1,14 @@
-.AppContainer{
-    display: flex;
-    height: 100vh;
+.AppContainer {
+  display: flex;
+  height: 100vh;
+}
+
+.MainPanel {
+  width: 15vw;
+  height: 100vh;
+}
+
+.ExpandLeftPanel{
+  position: fixed;
+  z-index: 99999;
 }

@@ -1,0 +1,8 @@
+.p-orderlist-controls {
+    display: none !important; /* Hides the left-side buttons */
+}
+
+.InteractiveRow{
+    display: block !important;
+    gap: 10px !important;
+}

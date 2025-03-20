@@ -71,7 +71,7 @@ function MapMapPanelComponent(props: Props) {
       <MapContainer
         center={initialPosition}
         zoom={13}
-        style={{ height: "100vh", width: "60%" }}
+        style={{ height: "100vh", width: "70vw" }}
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <UserLocationUpdater
