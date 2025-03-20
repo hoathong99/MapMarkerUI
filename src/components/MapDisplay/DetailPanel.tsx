@@ -37,7 +37,7 @@ const DetailPanelComponent: React.FC = () => {
         if (articalContext.selectedArtical.List) {
             setNodes(convertPinsToTreeNodes(articalContext.selectedArtical.List));
         }
-    }, [pinContext.selectedPin])
+    }, [pinContext, articalContext])
 
     if (pinContext.selectedPin == emptyPin) {
         return (<></>)
@@ -56,8 +56,8 @@ const DetailPanelComponent: React.FC = () => {
                 <div className="Body">
                     <div className="table">
                         <TreeTable value={nodes} scrollable scrollHeight="40vh">
-                            <Column field="label" header="Name"></Column>
-                            <Column field="content" header="Content"></Column>
+                            <Column field="label" header="Pin"></Column>
+                            <Column field="content" header="Describe"></Column>
                         </TreeTable>
                     </div>
 

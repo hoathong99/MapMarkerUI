@@ -37,7 +37,7 @@ const MainPanelComponent: React.FC<Props> = (prop: Props) => {
           <button onClick={prop.onLoadMore}>load more</button>
         </div>
         <div className="Body">
-          <OrderList dataKey="id" value={data} itemTemplate={itemTemplate} header="Pin Boxs" ></OrderList>
+          <OrderList dataKey="id" value={data} itemTemplate={itemTemplate} header="Pin Boxes" ></OrderList>
         </div>
       </div>
     </>
