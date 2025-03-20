@@ -46,19 +46,21 @@ const DetailPanelComponent: React.FC = () => {
         <>
             <div className="Container">
                 <div className="Header">
+                    <div>
                     {articalContext.selectedArtical.header}
+                    </div>
+                    <div>
                     {articalContext.selectedArtical.content}
+                    </div>
                 </div>
                 <div className="Body">
                     <div className="table">
-                        <TreeTable value={nodes} scrollable scrollHeight="30vh">
-                            <Column field="label" header="Name" expander></Column>
+                        <TreeTable value={nodes} scrollable scrollHeight="40vh">
+                            <Column field="label" header="Name"></Column>
                             <Column field="content" header="Content"></Column>
                         </TreeTable>
                     </div>
-                    <div>
-                        {pinContext.selectedPin.lat} lat {pinContext.selectedPin.lng} ln
-                    </div>
+
                     <div>
                         {pinContext.selectedPin.content}
                     </div>

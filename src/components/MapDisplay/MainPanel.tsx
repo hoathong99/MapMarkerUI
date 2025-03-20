@@ -22,11 +22,11 @@ const MainPanelComponent: React.FC<Props> = (prop: Props) => {
     setData(prop.articalLst);
   }, [prop.articalLst]);
 
-  const itemTemplate = (item:Artical) => {
+  const itemTemplate = (item: Artical) => {
     return (
       <div onClick={() => OnClickArtical(item)} className="InteractiveRow">
-        {item.header}
-        {item.content}
+        <div>{item.header}</div>
+        <div>{item.content}</div>
       </div>
     );
   };
@@ -37,7 +37,7 @@ const MainPanelComponent: React.FC<Props> = (prop: Props) => {
           <button onClick={prop.onLoadMore}>load more</button>
         </div>
         <div className="Body">
-          <OrderList dataKey="id" value={data} itemTemplate={itemTemplate} header="Pins" ></OrderList>
+          <OrderList dataKey="id" value={data} itemTemplate={itemTemplate} header="Pin Boxs" ></OrderList>
         </div>
       </div>
     </>
