@@ -69,20 +69,26 @@ async function fetchArticals(page: number, Token: string): Promise<Artical[] | n
 }
 
 //----------------------EXPORT CONTEXT----------------------------------------------------//
-export const ArticalContext = createContext<{
+export const ArticalContext = createContext<{                               //SHARED ARTICAL LIST FOR ALL 3 COMPONENTS
   selectedArtical: Artical;
   setSelectedArtical: (artical: Artical) => void;
 }>({
   selectedArtical: emptyArtical,
   setSelectedArtical: () => { }
 });
-
-export const PinContext = createContext<{
+export const PinContext = createContext<{                                   //SHARED CURRENT SELECTED PIN FOR ALL 3 COMPONENTS
   selectedPin: Pin;
   setSelectedPin: (pin: Pin) => void;
 }>({
   selectedPin: emptyPin,
   setSelectedPin: () => { }
+});
+export const FocusPinContext = createContext<{                                 //SHARED PIN TO FOCUS PIN FOR 2 LEFT COMPONENTS
+  focusPin: Pin;
+  setFocusPin: (pin: Pin) => void;
+}>({
+  focusPin: emptyPin,
+  setFocusPin: () => { }
 });
 //--------------------------------------------------------------------------------------------//
 
@@ -93,8 +99,9 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [selectedArtical, setSelectedArtical] = useState<Artical>(emptyArtical);
   const [selectedPin, setSelectedPin] = useState<Pin>(emptyPin);
+  const [focusPin, setFocusPin] = useState<Pin>(emptyPin);
   const [currentLocation, setCurrentLocation] = useState<LatLngTuple>();
-
+  
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
@@ -122,7 +129,7 @@ function App() {
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
-      const result = await fetchArticals(page, "#Token");                  //tempo
+      const result = await fetchArticals(page, "#Token");                               //tempo
       if (result) {
         setArticalLst([...articalLst, ...result]);                                      // add result to previous list
       }
@@ -137,22 +144,27 @@ function App() {
     setPage(prevPage => prevPage + 10);
   }
 
+  useEffect(()=>{
+    console.log(focusPin);
+  },[focusPin])
   return (
     <>
       <div className='AppContainer'>
         <ArticalContext.Provider value={{ selectedArtical, setSelectedArtical }}>
           <PinContext.Provider value={{ selectedPin, setSelectedPin }} >
-            <Splitter>
-              <SplitterPanel className="flex justify-content-center" size={15} minSize={10}>
-                <MainPanelComponent className="MainPanel" onLoadMore={LoadMoreArtical} articalLst={articalLst}></MainPanelComponent>
-              </SplitterPanel>
-              <SplitterPanel className="flex justify-content-center" size={70} minSize={60}>
-                <MapMapPanelComponent currentLocation={currentLocation}></MapMapPanelComponent>
-              </SplitterPanel>
-              <SplitterPanel className="flex justify-content-center">
-                <DetailPanel></DetailPanel>
-              </SplitterPanel>
-            </Splitter>
+            <FocusPinContext value={{ focusPin, setFocusPin }}>
+              <Splitter>
+                <SplitterPanel className="flex justify-content-center" size={15} minSize={10}>
+                  <MainPanelComponent className="MainPanel" onLoadMore={LoadMoreArtical} articalLst={articalLst}></MainPanelComponent>
+                </SplitterPanel>
+                <SplitterPanel className="flex justify-content-center" size={70} minSize={60}>
+                  <MapMapPanelComponent currentLocation={currentLocation}></MapMapPanelComponent>
+                </SplitterPanel>
+                <SplitterPanel className="flex justify-content-center">
+                  <DetailPanel></DetailPanel>
+                </SplitterPanel>
+              </Splitter>
+            </FocusPinContext>
           </PinContext.Provider>
         </ArticalContext.Provider>
       </div>
