@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { Pin } from "../DTO/interfaces";
-import { ArticalContext, FocusPinContext, PinContext } from "../../App";
+import { ArticalContext, FocusPinContext, PinContext, userCustomPin } from "../../App";
 import { Marker, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import { MapContainer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -39,11 +39,9 @@ interface ClickableMapProps {
   setMarkerPosition: (position: LatLngTuple) => void;
 }
 
-function UserLocationUpdater(props: Props) {
-  const map = useMap();
-  const [markerPosition, setMarkerPosition] = useState<LatLngTuple | null>(
-    null
-  );
+function UserLocationUpdater(props: Props) {                                        // take in current user location, display custom pin and fly to that pin
+  const map = useMap();                                                             // If no user location, map center is set to default: Chua Mot Cot [21.035993051470584, 105.83367716525659]
+  const [markerPosition, setMarkerPosition] = useState<LatLngTuple | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
   // Update marker position only when location changes
   useEffect(() => {
@@ -76,7 +74,9 @@ function UserLocationUpdater(props: Props) {
 function ClickableMap(setMarkerPosition: ClickableMapProps) {
   useMapEvents({
     click(e) {
+                        
       setMarkerPosition.setMarkerPosition([e.latlng.lat, e.latlng.lng]); // Convert LatLng to LatLngTuple
+      // useContext(PinContext).setSelectedPin(emptyPin);                    // reset selected pin to empty so current selected pin do popup (tempo fix)
     },
   });
   return null;
@@ -85,20 +85,21 @@ function ClickableMap(setMarkerPosition: ClickableMapProps) {
 function MapMapPanelComponent(props: Props) {
   const articleContext = useContext(ArticalContext);
   const pinContext = useContext(PinContext);
-  const forcusPinContext = useContext(FocusPinContext);
-
+  // const forcusPinContext = useContext(FocusPinContext);
+  const customPinContext = useContext(userCustomPin);
   const [markerPosition, setMarkerPosition] = useState<LatLngTuple | null>(null);
   const markerRefs = useRef<{ [key: string]: L.Marker | null }>({});
-  const initialPosition: LatLngTuple = [21.035993051470584, 105.83367716525659]; // HN inital location
+  const initialPosition: LatLngTuple = [21.035993051470584, 105.83367716525659]; // HN inital location  : Chua Mot Cot
   const OnClickPin = (selected: Pin) => {
     pinContext.setSelectedPin(selected);
   };
   useEffect(() => {
+    console.log("current Selected Pin", pinContext.selectedPin.id);
     openPopup(pinContext.selectedPin.id);
-  }, [pinContext]);
+  }, [pinContext.selectedPin]);
 
   useEffect(() => {
-    forcusPinContext.setFocusPin({
+    customPinContext.setCustomPin({
       id: "",
       lat: markerPosition?.[0].toString() || "",
       lng: markerPosition?.[0].toString() || "",
@@ -108,6 +109,7 @@ function MapMapPanelComponent(props: Props) {
   }, [markerPosition]);
 
   const openPopup = (pinId: string) => {
+    // console.log("popup Pin", pinId);
     if (markerRefs.current[pinId]) {
       markerRefs.current[pinId]!.openPopup();
     }
@@ -143,7 +145,7 @@ function MapMapPanelComponent(props: Props) {
         {markerPosition && (
           <Marker position={markerPosition} icon={userCustomPinIcon}>
             <Popup>
-              Custom Marker <br /> {markerPosition[0].toFixed(5)}, {markerPosition[1].toFixed(5)}
+              Your custom marker <br /> {markerPosition[0].toFixed(5)}, {markerPosition[1].toFixed(5)}
             </Popup>
           </Marker>
         )}

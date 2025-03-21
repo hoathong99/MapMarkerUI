@@ -27,22 +27,24 @@ const convertPinsToTreeNodes = (pins: Pin[]): TreeNode[] => {
   }));
 };
 
-const DetailPanelComponent: React.FC = () => {
+function DetailPanelComponent() {
   const pinContext = useContext(PinContext);
   const articalContext = useContext(ArticalContext);
   const [nodes, setNodes] = useState<TreeNode[]>([]);
   const [selectedPin, setSelectedPin] = useState<Pin | null>(null);
   // const forcusPinContext = useContext(FocusPinContext);
-  
+  // const [displayPin, setDisplayPin] = useState<Pin | null>(null);
+
   useEffect(() => {
     if (articalContext.selectedArtical.List) {
       setNodes(convertPinsToTreeNodes(articalContext.selectedArtical.List));
     }
-  }, [pinContext, articalContext]);
+  }, [articalContext]);
 
-  useEffect(() =>{
-    if(selectedPin) {
-        pinContext.setSelectedPin(selectedPin);
+  useEffect(() => {
+    if (selectedPin) {
+      pinContext.setSelectedPin(selectedPin);
+      // setDisplayPin(selectedPin);
     }
   }, [selectedPin])
 
@@ -70,19 +72,20 @@ const DetailPanelComponent: React.FC = () => {
                 const selectedKey = e.value ? e.value : null;
                 const selectedItem = articalContext.selectedArtical.List.find(item => item.id === selectedKey) || null;
                 setSelectedPin(selectedItem);
+                // setDisplayPin(selectedItem);
                 // if(selectedItem){
                 //   console.log(selectedItem);
                 //   forcusPinContext.setFocusPin(selectedItem);
                 // }
               }
-                
+
               }
             >
               <Column field="label" header="Pin"></Column>
               <Column field="content" header="Describe"></Column>
             </TreeTable>
           </div>
-
+           <div>{pinContext.selectedPin.label}</div>   
           <div>{pinContext.selectedPin.content}</div>
         </div>
       </div>

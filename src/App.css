@@ -1,11 +1,12 @@
 .AppContainer {
   display: flex;
-  height: 100vh;
+
 }
 
 .MainPanel {
-  width: 15vw;
-  height: 100vh;
+  position: absolute;
+  top: 50%;
+  z-index: 9999;
 }
 
 .ExpandLeftPanel{
