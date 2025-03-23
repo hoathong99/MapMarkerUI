@@ -5,7 +5,7 @@ import MainPanelComponent from './components/MapDisplay/MainPanel';
 import DetailPanel from './components/MapDisplay/DetailPanel';
 import { createContext, useEffect, useState } from 'react';
 import { LatLngTuple } from 'leaflet';
-import "primereact/resources/themes/bootstrap4-light-blue/theme.css";  // Theme (choose one)
+import "primereact/resources/themes/bootstrap4-dark-blue/theme.css";  // Theme (choose one)
 import "primereact/resources/primereact.min.css";  // PrimeReact core styles
 import "primeicons/primeicons.css";  // Icons
 import "primeflex/primeflex.css";  // Flex utilities (optional)
@@ -28,47 +28,18 @@ const emptyPin: Pin = {
 };
 
 
-async function fetchData(ID: string, Token: string): Promise<Artical[] | null> {                      // Should be Server call but use decenterlized localstorage for now
-
-  // try {
-  //   const response = await fetch("https://api.example.com/articles" + ID + Token);                 // temp url to fetch account inital data to display
-
-  //   if (!response.ok) {
-  //     throw new Error(`HTTP error! Status: ${response.status}`);
-  //   }
-  //   const data: Artical[] = await response.json();
-  //   return data;
-
-  // } catch (error) {
-  //   console.error("Fetch error:", error);
-  //   return null; // Return null on error
+function fetchData(): Artical[] {                                                                            // Should be Server call but use decenterlized localstorage for now
+  // if (localStorage.getItem("ArticalData")) {
+  // localStorage.setItem('ArticalData', JSON.stringify(sampleArticals));                                    // set tempo data
   // }
-  if (localStorage.getItem("ArticalData")) {
-    localStorage.setItem('ArticalData', JSON.stringify(sampleArticals));                                  // set tempo data
-  }
+  // console.log(JSON.parse(localStorage.getItem('ArticalData')||""));
 
-  return JSON.parse(localStorage.getItem('ArticalData') || "{}");
+  return JSON.parse(localStorage.getItem('ArticalData')||"");
 }
 
-async function fetchArticals(page: number, Token: string): Promise<Artical[] | null> {
-
-  // try {
-  //   const response = await fetch("https://api.example.com/articlesList" + page + Token);                 // temp url to fetch account inital data to display
-
-  //   if (!response.ok) {
-  //     throw new Error(`HTTP error! Status: ${response.status}`);
-  //   }
-  //   const data: Artical[] = await response.json();
-  //   return data;
-
-  // } catch (error) {
-  //   console.error("Fetch error:", error);
-  //   return []; // Return [] on error
-  // }
-
-  return sampleArticals;
-
-}
+// async function fetchArticals(page: number, Token: string): Promise<Artical[] | null> {
+//   return sampleArticals;
+// }
 
 function UpdateLocalStorage(artical: Artical[]) {
   localStorage.setItem('ArticalData', JSON.stringify(artical));
@@ -89,7 +60,7 @@ export const PinContext = createContext<{                                   //SH
   selectedPin: emptyPin,
   setSelectedPin: () => { }
 });
-export const FocusPinContext = createContext<{                                 //SHARED PIN TO FOCUS PIN FOR 2 LEFT COMPONENTS
+export const FocusPinContext = createContext<{                               //SHARED PIN TO FOCUS PIN FOR 2 LEFT COMPONENTS 
   focusPin: Pin;
   setFocusPin: (pin: Pin) => void;
 }>({
@@ -107,7 +78,7 @@ export const userCustomPin = createContext<{                                 //S
 
 function App() {
   const [articalLst, setArticalLst] = useState<Artical[]>([]);
-  const [page, setPage] = useState(0);
+  // const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedArtical, setSelectedArtical] = useState<Artical>(emptyArtical);
@@ -116,19 +87,32 @@ function App() {
   const [customPin, setCustomPin] = useState<Pin>(emptyPin);
   const [currentLocation, setCurrentLocation] = useState<LatLngTuple>();
 
-  useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
-      const result = await fetchData("#UID", "#Token");                  //tempo
-      if (result) {
-        // console.log(result);
-        setArticalLst(result)
+  const updatePin = (articleID: string, updatedPin: Pin) => {
+    let articalIndex = articalLst.findIndex((a) => a.ID == articleID)
+    if (articalIndex != -1) {
+      let pinIndex = articalLst[articalIndex].List.findIndex((p) => p.id == updatedPin.id);
+      let Data = articalLst.concat();
+      if (pinIndex != -1) {
+        Data[articalIndex].List[pinIndex] = updatedPin;
+        setArticalLst(Data);
       }
-      else setError("Failed to load data");
-      setLoading(false);
-    };
+    }
+  };
 
-    loadData();
+  const loadDataFromLS = () => {                                            //tempo
+    // setLoading(true);         
+    setArticalLst(fetchData())
+    // setLoading(false);
+    if (selectedArtical.ID != "") {
+      setSelectedArtical(articalLst.find((a) => a.ID == selectedArtical.ID) || emptyArtical);
+    }
+    if (selectedPin != emptyPin) {
+      setSelectedPin(articalLst.find((a) => a.ID == selectedArtical.ID)?.List.find((p) => p.id == selectedPin.id) || emptyPin);
+    }
+  };
+
+  useEffect(() => {
+    loadDataFromLS();
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
@@ -141,28 +125,45 @@ function App() {
     }
   }, []);
 
-  useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
-      const result = await fetchArticals(page, "#Token");                               //tempo
-      if (result) {
-        setArticalLst([...articalLst, ...result]);                                      // add result to previous list
-      }
-      else setError("Failed to load data");
-      setLoading(false);
-    };
+  // useEffect(() => {
+  //   const loadData = async () => {
+  //     setLoading(true);
+  //     const result = await fetchArticals(page, "#Token");                               //tempo
+  //     if (result) {
+  //       setArticalLst([...articalLst, ...result]);                                      // add result to previous list
+  //     }
+  //     else setError("Failed to load data");
+  //     setLoading(false);
+  //   };
 
-    loadData();
-  }, [page]);
+  //   loadData();
+  // }, [page]);
 
   const LoadMoreArtical = () => {
-    setPage(prevPage => prevPage + 10);
+    // setPage(prevPage => prevPage + 10);
   }
 
+  const OnSubmitPin = (pin : Pin) => {
+    if (selectedPin && selectedArtical) {
+      updatePin(selectedArtical.ID, pin);
+      UpdateLocalStorage(articalLst);
+      loadDataFromLS();
+    }
+  }
 
-  useEffect(() => {
-    UpdateLocalStorage(articalLst);
-  }, [articalLst])
+   
+
+  // useEffect(() => {
+  //   UpdateLocalStorage(articalLst);
+  // }, [articalLst])
+
+  // useEffect(() => {                                                                               // Happen when a pin is submitted
+  //   if (selectedPin && selectedArtical) {
+  //     updatePin(selectedArtical.ID, focusPin);
+  //     UpdateLocalStorage(articalLst);
+  //     loadDataFromLS();
+  //   }
+  // }, [focusPin])
 
   return (
     <>
@@ -172,13 +173,13 @@ function App() {
             <PinContext.Provider value={{ selectedPin, setSelectedPin }} >
               <FocusPinContext value={{ focusPin, setFocusPin }}>
                 <div>
-                <MainPanelComponent className="MainPanel" onLoadMore={LoadMoreArtical} articalLst={articalLst}></MainPanelComponent>
+                  <MainPanelComponent className="MainPanel" onLoadMore={LoadMoreArtical} articalLst={articalLst}></MainPanelComponent>
                 </div>
                 <div>
-                <MapMapPanelComponent currentLocation={currentLocation}></MapMapPanelComponent>
+                  <MapMapPanelComponent currentLocation={currentLocation}></MapMapPanelComponent>
                 </div>
                 <div>
-                <DetailPanel></DetailPanel>
+                  <DetailPanel onSubmit={OnSubmitPin}></DetailPanel>
                 </div>
               </FocusPinContext>
             </PinContext.Provider>

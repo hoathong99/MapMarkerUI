@@ -1,9 +1,18 @@
 .Header{
-    margin-top: 10px;
-    justify-content: center;
-    justify-items: center;
+    font-size: large;
+    padding-top: 10px;
+    text-align: center;
 }
 
 .Body{
+    margin-top: 10px;
+    height: 80vh;
+}
+
+.container{
+    padding: 10px;
+}
+
+.Detail{
     margin-top: 10px;
 }
