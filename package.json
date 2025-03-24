@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://hoathong99.github.io/MapMarkerUI",
+  "homepage": "https://hoathong99.github.io/MapMarkerUI/",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
