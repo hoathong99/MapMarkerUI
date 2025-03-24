@@ -90,8 +90,8 @@ export const userCustomPin = createContext<{                                 //S
 //-------------------------------MAIN EXPORT FUNCTION----------------------------------------------------//
 function App() {
   const [articalLst, setArticalLst] = useState<Artical[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // const [loading, setLoading] = useState(false);
+  // const [error, setError] = useState<string | null>(null);
   const [selectedArtical, setSelectedArtical] = useState<Artical>(emptyArtical);
   const [selectedPin, setSelectedPin] = useState<Pin>(emptyPin);
   const [focusPin, setFocusPin] = useState<Pin>(emptyPin);

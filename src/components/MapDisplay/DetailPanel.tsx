@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { ArticalContext, FocusPinContext, PinContext, userCustomPin } from "../../App";
+import { ArticalContext, PinContext, userCustomPin } from "../../App";
 import { Artical, Pin } from "../DTO/interfaces";
 import { TreeTable } from "primereact/treetable";
 import { Column } from "primereact/column";

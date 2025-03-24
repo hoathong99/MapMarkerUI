@@ -5,7 +5,6 @@ import { OrderList } from 'primereact/orderlist';
 import './MainPanel.css';
 import { Button } from 'primereact/button';
 import { Sidebar } from 'primereact/sidebar';
-import leftPanelIcon from '../../assets/left_panel.png';
 
 interface Props {
   articalLst: Artical[],

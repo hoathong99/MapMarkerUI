@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { Pin } from "../DTO/interfaces";
-import { ArticalContext, FocusPinContext, PinContext, userCustomPin } from "../../App";
+import { ArticalContext, PinContext, userCustomPin } from "../../App";
 import { Marker, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import { MapContainer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -9,13 +9,13 @@ import L from "leaflet";
 import personIcon from "../../assets/person_pin_circle.png";
 import tempoPinIcon from "../../assets/tempPin.png";
 
-const emptyPin: Pin = {
-  id: "",
-  lat: "0",
-  lng: "0",
-  label: "",
-  content: "",
-};
+// const emptyPin: Pin = {
+//   id: "",
+//   lat: "0",
+//   lng: "0",
+//   label: "",
+//   content: "",
+// };
 
 const customIcon = L.icon({
   iconUrl: personIcon,
