@@ -60,6 +60,7 @@ function DetailPanelComponent(prop: Props) {
   let deleteTarget = useRef<TreeNode>({});
   let customPin = useRef<Pin>(emptyPin);
   const toast = useRef<Toast>(null);
+  const [isSync, setIsSync] = useState<boolean>(false);
 
   const footerContent = (
     <div style={{ display: "flex", padding: "5px", height: "2rem", gap: "1rem" }}>
@@ -168,6 +169,13 @@ function DetailPanelComponent(prop: Props) {
     setIsEditMode(false);
   }, [pinContext])
 
+  useEffect(()=>{
+    if(selectedFile){
+      setIsSync(true);
+    }else{
+      setIsSync(false);
+    }
+  },[selectedFile]);
   if (pinContext.selectedPin == emptyPin) {
     return <></>;
   }
@@ -268,7 +276,7 @@ function DetailPanelComponent(prop: Props) {
         <div className="Footer" style={{ display: "flex", justifyContent: "center", gap:"5px" }}>
           <Button style={{ height: "2rem", width: "5rem", display: "flex", justifyItems: "center" }} type="button" icon="pi pi-file-export" severity="info" onClick={() => OnClickExport()}></Button>
           <FileUpload style={{ height: "2rem", display: "flex", justifyItems: "center" }} ref={fileUploadRef} mode="basic" name="jsonFile" customUpload accept=".json" maxFileSize={1000000} onUpload={OnUpload} chooseLabel={selectedFile ? selectedFile.name : "Upload Json File"} onSelect={handleFileSelect}/>
-          <Button style={{ height: "2rem", width: "5rem", display: "flex", justifyItems: "center" }} type="button" icon="pi pi-sync" label="sync" severity="warning" onClick={()=> OnClickImport()}></Button>
+          <Button visible={isSync} style={{ height: "2rem", width: "5rem", display: "flex", justifyItems: "center" }} type="button" icon="pi pi-sync" label="sync" severity="warning" onClick={()=> OnClickImport()}></Button>
         </div>
       </Card>
     </>
