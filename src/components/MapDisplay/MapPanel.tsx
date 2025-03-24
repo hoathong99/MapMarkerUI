@@ -8,6 +8,7 @@ import { LatLngTuple } from "leaflet";
 import L from "leaflet";
 import personIcon from "../../assets/person_pin_circle.png";
 import tempoPinIcon from "../../assets/tempPin.png";
+import customPin from "../../assets/Pin.png";
 
 // const emptyPin: Pin = {
 //   id: "",
@@ -20,6 +21,13 @@ import tempoPinIcon from "../../assets/tempPin.png";
 const customIcon = L.icon({
   iconUrl: personIcon,
   iconSize: [50, 50],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
+
+const pinIcon = L.icon({
+  iconUrl: customPin,
+  iconSize: [40, 40],
   iconAnchor: [16, 32],
   popupAnchor: [0, -32],
 });
@@ -130,6 +138,7 @@ function MapMapPanelComponent(props: Props) {
         ></UserLocationUpdater>
         {articleContext.selectedArtical.List.map((item) => (
           <Marker key={item.id}
+            icon={pinIcon}
             position={[Number(item.lat), Number(item.lng)]}
             ref={(e) => {
               if (e) {
