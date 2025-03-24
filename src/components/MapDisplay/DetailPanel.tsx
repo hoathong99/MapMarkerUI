@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { ArticalContext, FocusPinContext, PinContext } from "../../App";
+import { ArticalContext, FocusPinContext, PinContext, userCustomPin } from "../../App";
 import { Artical, Pin } from "../DTO/interfaces";
 import { TreeTable } from "primereact/treetable";
 import { Column } from "primereact/column";
@@ -38,9 +38,8 @@ const convertPinsToTreeNodes = (pins: Pin[]): TreeNode[] => {
   }));
 };
 
-
 function DetailPanelComponent(prop: Props) {
-  // const focusPinContext = useContext(FocusPinContext);
+  const customPinContext = useContext(userCustomPin);
   const [visible, setVisible] = useState<boolean>(false);
   const pinContext = useContext(PinContext);
   const articalContext = useContext(ArticalContext);
@@ -65,7 +64,7 @@ function DetailPanelComponent(prop: Props) {
     let newPinList = articalContext.selectedArtical.List.filter((i) => i.id != node.data.id);
     let newArtical = structuredClone(articalContext.selectedArtical);
     newArtical.List = newPinList;
-    console.log(newArtical);
+    // console.log(newArtical);
     setVisible(false);
     prop.onUpdateArtical(newArtical);
   }
@@ -74,16 +73,8 @@ function DetailPanelComponent(prop: Props) {
     prop.onSubmit(data);
   }
 
-  const Delete = () => {
-    // console.log(pinContext.selectedPin.label);
-    let newPinList = articalContext.selectedArtical.List.filter((i) => i != pinContext.selectedPin);
-    let newArtical = structuredClone(articalContext.selectedArtical);
-    newArtical.List = newPinList;
-    prop.onUpdateArtical(newArtical);
-  }
-
   const FocusOnPin = () => {
-    console.log(pinContext.selectedPin.label);
+    // console.log(pinContext.selectedPin.label);
   }
 
   const actionTemplate = (a: TreeNode) => {
@@ -96,9 +87,6 @@ function DetailPanelComponent(prop: Props) {
   };
 
   useEffect(() => {
-    // if (articalContext.selectedArtical.List) {
-      
-    // }
     setNodes(convertPinsToTreeNodes(articalContext.selectedArtical.List));
   }, [articalContext]);
 

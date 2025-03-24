@@ -5,7 +5,7 @@ import MainPanelComponent from './components/MapDisplay/MainPanel';
 import DetailPanel from './components/MapDisplay/DetailPanel';
 import { createContext, useEffect, useState } from 'react';
 import { LatLngTuple } from 'leaflet';
-import "primereact/resources/themes/md-dark-indigo/theme.css";
+import "primereact/resources/themes/lara-dark-teal/theme.css";
 import "primereact/resources/primereact.min.css";  
 import "primeicons/primeicons.css";  
 import "primeflex/primeflex.css";  
@@ -29,15 +29,14 @@ const emptyPin: Pin = {
 
 //---------------------------INDEPENDENT FUNCTION------------------------------------------------//
 function fetchData(): Artical[] {                                                                            // Should be Server call but use decenterlized localstorage for now
-  // if (localStorage.getItem("ArticalData")) {
-  // localStorage.setItem('ArticalData', JSON.stringify(sampleArticals));                                    // set tempo data
-  // }
-  return JSON.parse(localStorage.getItem('ArticalData') || "");
+  if (localStorage.getItem("ArticalData")) {
+    // console.log("getting data from LS...");
+    return JSON.parse(localStorage.getItem('ArticalData') || "");
+  }else{
+    localStorage.setItem('ArticalData', JSON.stringify(sampleArticals));
+    return JSON.parse(localStorage.getItem('ArticalData') || "");    
+  }
 }
-
-// async function fetchArticals(page: number, Token: string): Promise<Artical[] | null> {
-//   return sampleArticals;
-// }
 
 function UpdateLocalStorage(artical: Artical[]) {
   localStorage.setItem('ArticalData', JSON.stringify(artical));
@@ -76,7 +75,6 @@ export const userCustomPin = createContext<{                                 //S
 //-------------------------------MAIN EXPORT FUNCTION----------------------------------------------------//
 function App() {
   const [articalLst, setArticalLst] = useState<Artical[]>([]);
-  // const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedArtical, setSelectedArtical] = useState<Artical>(emptyArtical);
@@ -89,16 +87,6 @@ function App() {
   const loadDataFromLS = () => {                                            //tempo
     // setLoading(true);         
     setArticalLst(fetchData());
-    console.log(articalLst);
-    // setLoading(false);
-    if (selectedArtical.ID != "") {
-      setSelectedArtical(articalLst.find((a) => a.ID == selectedArtical.ID) || emptyArtical);
-      console.log(selectedArtical);
-    }
-    if (selectedPin != emptyPin) {
-      setSelectedPin(articalLst.find((a) => a.ID == selectedArtical.ID)?.List.find((p) => p.id == selectedPin.id) || emptyPin);
-      console.log(selectedPin);
-    }
   };
 
   const LoadMoreArtical = () => {
@@ -159,21 +147,14 @@ function App() {
     }
   }, []);
 
-  // useEffect(() => {
-  //   const loadData = async () => {
-  //     setLoading(true);
-  //     const result = await fetchArticals(page, "#Token");                               //tempo
-  //     if (result) {
-  //       setArticalLst([...articalLst, ...result]);                                      // add result to previous list
-  //     }
-  //     else setError("Failed to load data");
-  //     setLoading(false);
-  //   };
-
-  //   loadData();
-  // }, [page]);
-
-
+  useEffect(()=>{
+    if (selectedArtical.ID != "") {
+      setSelectedArtical(articalLst.find((a) => a.ID == selectedArtical.ID) || emptyArtical);
+    }
+    if (selectedPin != emptyPin) {
+      setSelectedPin(articalLst.find((a) => a.ID == selectedArtical.ID)?.List.find((p) => p.id == selectedPin.id) || emptyPin);
+    }
+  },[articalLst]);
 
   // useEffect(() => {
   //   UpdateLocalStorage(articalLst);

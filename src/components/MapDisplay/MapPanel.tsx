@@ -94,7 +94,7 @@ function MapMapPanelComponent(props: Props) {
     pinContext.setSelectedPin(selected);
   };
   useEffect(() => {
-    console.log("current Selected Pin", pinContext.selectedPin.id);
+    // console.log("current Selected Pin", pinContext.selectedPin.id);
     openPopup(pinContext.selectedPin.id);
   }, [pinContext.selectedPin]);
 
@@ -106,6 +106,7 @@ function MapMapPanelComponent(props: Props) {
       label: "",
       content: ""
     })
+    console.log(customPinContext.customPin);
   }, [markerPosition]);
 
   const openPopup = (pinId: string) => {
