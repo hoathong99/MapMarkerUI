@@ -20,7 +20,7 @@ interface Props {
   onSubmit: (pin: Pin) => void;
   onUpdateArtical: (a: Artical) => void;
   onExport: () => void;
-  onImport: (file:File) => void;
+  onImport: (file: File) => void;
 }
 
 const emptyPin: Pin = {
@@ -117,7 +117,7 @@ function DetailPanelComponent(prop: Props) {
   }
 
   const OnClickImport = () => {
-    if(selectedFile){
+    if (selectedFile) {
       prop.onImport(selectedFile);
       toast.current?.show({ severity: 'info', summary: 'Success', detail: 'Sync Completed' });
     }
@@ -169,13 +169,13 @@ function DetailPanelComponent(prop: Props) {
     setIsEditMode(false);
   }, [pinContext])
 
-  useEffect(()=>{
-    if(selectedFile){
+  useEffect(() => {
+    if (selectedFile) {
       setIsSync(true);
-    }else{
+    } else {
       setIsSync(false);
     }
-  },[selectedFile]);
+  }, [selectedFile]);
   if (pinContext.selectedPin == emptyPin) {
     return <></>;
   }
@@ -188,9 +188,11 @@ function DetailPanelComponent(prop: Props) {
           <div>{articalContext.selectedArtical.content}</div>
         </div>
         <div className="Body">
-          <div className="Action" style={{ display: "flex", width: "100%", justifyContent: "end" }}>
-            <Button type="button" icon="pi pi-plus" severity="success" rounded onClick={() => { OpenAddPinPanel() }}></Button>
-          </div>
+          {articalContext.selectedArtical.ID != "" && (
+            <div className="Action" style={{ display: "flex", width: "100%", justifyContent: "end" }}>
+              <Button type="button" icon="pi pi-plus" severity="success" rounded onClick={() => { OpenAddPinPanel() }}></Button>
+            </div>
+          )}
           <div className="table">
             <TreeTable
               value={nodes}
@@ -273,10 +275,10 @@ function DetailPanelComponent(prop: Props) {
           </Sidebar>
           <Toast ref={toast} />
         </div>
-        <div className="Footer" style={{ display: "flex", justifyContent: "center", gap:"5px" }}>
+        <div className="Footer" style={{ display: "flex", justifyContent: "center", gap: "5px" }}>
           <Button style={{ height: "2rem", width: "5rem", display: "flex", justifyItems: "center" }} type="button" icon="pi pi-file-export" severity="info" onClick={() => OnClickExport()}></Button>
-          <FileUpload style={{ height: "2rem", display: "flex", justifyItems: "center" }} ref={fileUploadRef} mode="basic" name="jsonFile" customUpload accept=".json" maxFileSize={1000000} onUpload={OnUpload} chooseLabel={selectedFile ? selectedFile.name : "Upload Json File"} onSelect={handleFileSelect}/>
-          <Button visible={isSync} style={{ height: "2rem", width: "5rem", display: "flex", justifyItems: "center" }} type="button" icon="pi pi-sync" label="sync" severity="warning" onClick={()=> OnClickImport()}></Button>
+          <FileUpload style={{ height: "2rem", display: "flex", justifyItems: "center" }} ref={fileUploadRef} mode="basic" name="jsonFile" customUpload accept=".json" maxFileSize={1000000} onUpload={OnUpload} chooseLabel={selectedFile ? selectedFile.name : "Upload Json File"} onSelect={handleFileSelect} />
+          <Button visible={isSync} style={{ height: "2rem", width: "5rem", display: "flex", justifyItems: "center" }} type="button" icon="pi pi-sync" label="sync" severity="warning" onClick={() => OnClickImport()}></Button>
         </div>
       </Card>
     </>
