@@ -5,10 +5,10 @@ import MainPanelComponent from './components/MapDisplay/MainPanel';
 import DetailPanel from './components/MapDisplay/DetailPanel';
 import { createContext, useEffect, useState } from 'react';
 import { LatLngTuple } from 'leaflet';
-import "primereact/resources/themes/bootstrap4-dark-blue/theme.css";  // Theme (choose one)
-import "primereact/resources/primereact.min.css";  // PrimeReact core styles
-import "primeicons/primeicons.css";  // Icons
-import "primeflex/primeflex.css";  // Flex utilities (optional)
+import "primereact/resources/themes/md-dark-indigo/theme.css";
+import "primereact/resources/primereact.min.css";  
+import "primeicons/primeicons.css";  
+import "primeflex/primeflex.css";  
 
 const emptyArtical: Artical = {
   ID: "",
@@ -27,14 +27,12 @@ const emptyPin: Pin = {
   content: ""
 };
 
-
+//---------------------------INDEPENDENT FUNCTION------------------------------------------------//
 function fetchData(): Artical[] {                                                                            // Should be Server call but use decenterlized localstorage for now
   // if (localStorage.getItem("ArticalData")) {
   // localStorage.setItem('ArticalData', JSON.stringify(sampleArticals));                                    // set tempo data
   // }
-  // console.log(JSON.parse(localStorage.getItem('ArticalData')||""));
-
-  return JSON.parse(localStorage.getItem('ArticalData')||"");
+  return JSON.parse(localStorage.getItem('ArticalData') || "");
 }
 
 // async function fetchArticals(page: number, Token: string): Promise<Artical[] | null> {
@@ -74,8 +72,8 @@ export const userCustomPin = createContext<{                                 //S
   customPin: emptyPin,
   setCustomPin: () => { }
 });
-//--------------------------------------------------------------------------------------------//
 
+//-------------------------------MAIN EXPORT FUNCTION----------------------------------------------------//
 function App() {
   const [articalLst, setArticalLst] = useState<Artical[]>([]);
   // const [page, setPage] = useState(0);
@@ -87,6 +85,40 @@ function App() {
   const [customPin, setCustomPin] = useState<Pin>(emptyPin);
   const [currentLocation, setCurrentLocation] = useState<LatLngTuple>();
 
+  //-----------------------------DEPENDENT FUNCTION------------------------------------------------------//
+  const loadDataFromLS = () => {                                            //tempo
+    // setLoading(true);         
+    setArticalLst(fetchData());
+    console.log(articalLst);
+    // setLoading(false);
+    if (selectedArtical.ID != "") {
+      setSelectedArtical(articalLst.find((a) => a.ID == selectedArtical.ID) || emptyArtical);
+      console.log(selectedArtical);
+    }
+    if (selectedPin != emptyPin) {
+      setSelectedPin(articalLst.find((a) => a.ID == selectedArtical.ID)?.List.find((p) => p.id == selectedPin.id) || emptyPin);
+      console.log(selectedPin);
+    }
+  };
+
+  const LoadMoreArtical = () => {
+    // setPage(prevPage => prevPage + 10);
+  }
+
+  const OnSubmitPin = (pin: Pin) => {
+    if (selectedPin && selectedArtical) {
+      updatePin(selectedArtical.ID, pin);
+      loadDataFromLS();
+    }
+  }
+
+  const OnUpdateArtical = (a: Artical) => {
+    if (a) {
+      UpdateArtical(a);
+      loadDataFromLS();
+    }
+  }
+
   const updatePin = (articleID: string, updatedPin: Pin) => {
     let articalIndex = articalLst.findIndex((a) => a.ID == articleID)
     if (articalIndex != -1) {
@@ -95,22 +127,24 @@ function App() {
       if (pinIndex != -1) {
         Data[articalIndex].List[pinIndex] = updatedPin;
         setArticalLst(Data);
+        UpdateLocalStorage(articalLst);
       }
     }
   };
 
-  const loadDataFromLS = () => {                                            //tempo
-    // setLoading(true);         
-    setArticalLst(fetchData())
-    // setLoading(false);
-    if (selectedArtical.ID != "") {
-      setSelectedArtical(articalLst.find((a) => a.ID == selectedArtical.ID) || emptyArtical);
-    }
-    if (selectedPin != emptyPin) {
-      setSelectedPin(articalLst.find((a) => a.ID == selectedArtical.ID)?.List.find((p) => p.id == selectedPin.id) || emptyPin);
+  const UpdateArtical = (arti: Artical) => {
+    let articalIndex = articalLst.findIndex((a) => a.ID == arti.ID)
+    if (articalIndex != -1) {
+      let Data = articalLst.concat();
+      Data[articalIndex] = arti;
+      setArticalLst(Data);
+      UpdateLocalStorage(Data);
     }
   };
 
+
+
+  //-------------------------------------USE EFFECT UPDATE--------------------------------------//
   useEffect(() => {
     loadDataFromLS();
     if ("geolocation" in navigator) {
@@ -139,19 +173,7 @@ function App() {
   //   loadData();
   // }, [page]);
 
-  const LoadMoreArtical = () => {
-    // setPage(prevPage => prevPage + 10);
-  }
 
-  const OnSubmitPin = (pin : Pin) => {
-    if (selectedPin && selectedArtical) {
-      updatePin(selectedArtical.ID, pin);
-      UpdateLocalStorage(articalLst);
-      loadDataFromLS();
-    }
-  }
-
-   
 
   // useEffect(() => {
   //   UpdateLocalStorage(articalLst);
@@ -179,7 +201,7 @@ function App() {
                   <MapMapPanelComponent currentLocation={currentLocation}></MapMapPanelComponent>
                 </div>
                 <div>
-                  <DetailPanel onSubmit={OnSubmitPin}></DetailPanel>
+                  <DetailPanel onSubmit={OnSubmitPin} onUpdateArtical={OnUpdateArtical}></DetailPanel>
                 </div>
               </FocusPinContext>
             </PinContext.Provider>
