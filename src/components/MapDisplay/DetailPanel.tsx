@@ -92,10 +92,12 @@ function DetailPanelComponent(prop: Props) {
     // console.log(newArtical);
     setVisible(false);
     prop.onUpdateArtical(newArtical);
+    toast.current?.show({ severity: 'info', summary: 'Success', detail: 'Delete Completed' });
   }
 
   const onSubmit = (data: Pin) => {
     prop.onSubmit(data);
+    toast.current?.show({ severity: 'info', summary: 'Success', detail: 'Update Completed' });
   }
 
   const onSubmitNewPin = (p: Pin) => {
@@ -106,6 +108,7 @@ function DetailPanelComponent(prop: Props) {
     // console.log(newArtical);
     prop.onUpdateArtical(newArtical);
     setVisiblePanel(false);
+    toast.current?.show({ severity: 'info', summary: 'Success', detail: 'Update Completed' });
   }
 
   const OnClickExport = () => {
@@ -115,7 +118,9 @@ function DetailPanelComponent(prop: Props) {
   const OnClickImport = () => {
     if(selectedFile){
       prop.onImport(selectedFile);
+      toast.current?.show({ severity: 'info', summary: 'Success', detail: 'Sync Completed' });
     }
+    setSelectedFile(null);
   }
 
   const OnUpload = (data: any) => {

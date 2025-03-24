@@ -74,7 +74,7 @@ function UserLocationUpdater(props: Props) {                                    
 function ClickableMap(setMarkerPosition: ClickableMapProps) {
   useMapEvents({
     click(e) {
-                        
+
       setMarkerPosition.setMarkerPosition([e.latlng.lat, e.latlng.lng]); // Convert LatLng to LatLngTuple
       // useContext(PinContext).setSelectedPin(emptyPin);                    // reset selected pin to empty so current selected pin do popup (tempo fix)
     },
@@ -139,7 +139,14 @@ function MapMapPanelComponent(props: Props) {
             eventHandlers={{
               dblclick: () => { OnClickPin(item) },
             }}>
-            <Popup>{item.label}</Popup>
+            <Popup>
+                <div style={{display:"flex", justifyContent:"center"}}>
+                  {item.label}
+                </div>
+                <div>
+                  {item.lat}{", "}{item.lng}
+                </div>
+            </Popup>
           </Marker>
 
         ))}
