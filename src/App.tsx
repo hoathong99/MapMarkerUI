@@ -6,9 +6,9 @@ import DetailPanel from './components/MapDisplay/DetailPanel';
 import { createContext, useEffect, useState } from 'react';
 import { LatLngTuple } from 'leaflet';
 import "primereact/resources/themes/lara-dark-teal/theme.css";
-import "primereact/resources/primereact.min.css";  
-import "primeicons/primeicons.css";  
-import "primeflex/primeflex.css";  
+import "primereact/resources/primereact.min.css";
+import "primeicons/primeicons.css";
+import "primeflex/primeflex.css";
 
 const emptyArtical: Artical = {
   ID: "",
@@ -32,9 +32,9 @@ function fetchData(): Artical[] {                                               
   if (localStorage.getItem("ArticalData")) {
     // console.log("getting data from LS...");
     return JSON.parse(localStorage.getItem('ArticalData') || "");
-  }else{
+  } else {
     localStorage.setItem('ArticalData', JSON.stringify(sampleArticals));
-    return JSON.parse(localStorage.getItem('ArticalData') || "");    
+    return JSON.parse(localStorage.getItem('ArticalData') || "");
   }
 }
 
@@ -42,6 +42,21 @@ function UpdateLocalStorage(artical: Artical[]) {
   localStorage.setItem('ArticalData', JSON.stringify(artical));
 }
 
+function exportToJson(data: unknown, filename: string = "data.json") {
+  const jsonStr = JSON.stringify(data, null, 2); // Convert to JSON with formatting
+  const blob = new Blob([jsonStr], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+
+  // Cleanup
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
 //----------------------EXPORT CONTEXT----------------------------------------------------//
 export const ArticalContext = createContext<{                               //SHARED ARTICAL LIST FOR ALL 3 COMPONENTS
   selectedArtical: Artical;
@@ -82,7 +97,6 @@ function App() {
   const [focusPin, setFocusPin] = useState<Pin>(emptyPin);
   const [customPin, setCustomPin] = useState<Pin>(emptyPin);
   const [currentLocation, setCurrentLocation] = useState<LatLngTuple>();
-
   //-----------------------------DEPENDENT FUNCTION------------------------------------------------------//
   const loadDataFromLS = () => {                                            //tempo
     // setLoading(true);         
@@ -100,11 +114,40 @@ function App() {
     }
   }
 
+  // const OnAddNewPin = (p:Pin) =>{
+  //   console.log(p);
+  // }
+
   const OnUpdateArtical = (a: Artical) => {
     if (a) {
       UpdateArtical(a);
       loadDataFromLS();
     }
+  }
+
+  const onExportDB = () => {
+    exportToJson(articalLst, "MapPin");
+  }
+
+  const OnImport = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        if (e.target?.result) {
+          const newArticles: Artical[] = JSON.parse(e.target.result as string);
+          if (!Array.isArray(newArticles)) {
+            throw new Error("Invalid JSON format. Expected an array of articles.");
+          }
+          setArticalLst((prevArticles) => [...prevArticles, ...newArticles]);
+          UpdateLocalStorage(articalLst);
+        }
+      } catch (error) {
+        alert("Invalid JSON file format!");
+        console.error("Error parsing JSON:", error);
+      }
+    };
+
+    reader.readAsText(file);
   }
 
   const updatePin = (articleID: string, updatedPin: Pin) => {
@@ -147,14 +190,14 @@ function App() {
     }
   }, []);
 
-  useEffect(()=>{
+  useEffect(() => {
     if (selectedArtical.ID != "") {
       setSelectedArtical(articalLst.find((a) => a.ID == selectedArtical.ID) || emptyArtical);
     }
     if (selectedPin != emptyPin) {
       setSelectedPin(articalLst.find((a) => a.ID == selectedArtical.ID)?.List.find((p) => p.id == selectedPin.id) || emptyPin);
     }
-  },[articalLst]);
+  }, [articalLst]);
 
   // useEffect(() => {
   //   UpdateLocalStorage(articalLst);
@@ -182,7 +225,7 @@ function App() {
                   <MapMapPanelComponent currentLocation={currentLocation}></MapMapPanelComponent>
                 </div>
                 <div>
-                  <DetailPanel onSubmit={OnSubmitPin} onUpdateArtical={OnUpdateArtical}></DetailPanel>
+                  <DetailPanel onSubmit={OnSubmitPin} onExport={onExportDB} onImport={OnImport} onUpdateArtical={OnUpdateArtical}></DetailPanel>
                 </div>
               </FocusPinContext>
             </PinContext.Provider>

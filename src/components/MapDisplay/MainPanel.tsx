@@ -13,22 +13,6 @@ interface Props {
   className?: string;
 }
 
-function exportToJson(data: unknown, filename: string = "data.json") {
-  const jsonStr = JSON.stringify(data, null, 2); // Convert to JSON with formatting
-  const blob = new Blob([jsonStr], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-
-  // Cleanup
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-};
-
 const MainPanelComponent: React.FC<Props> = (prop: Props) => {
   const articalContext = useContext(ArticalContext);
   const [visible, setVisible] = useState(false);

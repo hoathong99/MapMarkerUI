@@ -102,7 +102,7 @@ function MapMapPanelComponent(props: Props) {
     customPinContext.setCustomPin({
       id: "",
       lat: markerPosition?.[0].toString() || "",
-      lng: markerPosition?.[0].toString() || "",
+      lng: markerPosition?.[1].toString() || "",
       label: "",
       content: ""
     })
