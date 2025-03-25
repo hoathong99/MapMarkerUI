@@ -9,6 +9,7 @@ import L from "leaflet";
 import personIcon from "../../assets/person_pin_circle.png";
 import tempoPinIcon from "../../assets/tempPin.png";
 import customPin from "../../assets/Pin.png";
+// import { OpenStreetMapProvider , GeoSearchControl } from "leaflet-geosearch";
 
 // const emptyPin: Pin = {
 //   id: "",
@@ -46,6 +47,29 @@ interface Props {
 interface ClickableMapProps {
   setMarkerPosition: (position: LatLngTuple) => void;
 }
+
+// const SearchField = () => {
+//   const map = useMap();
+//   const provider = new OpenStreetMapProvider();
+//   useEffect(() => {
+//     let searchControl = new OpenStreetMapProvider({
+//       provider,
+//       style: "bar",
+//       showMarker: true,
+//       showPopup: true,
+//     });
+  
+//     map.addControl(searchControl);
+  
+//     // ✅ Correct cleanup function: Removes search control when component unmounts
+//     return () => {
+//       map.removeControl(searchControl);
+//     };
+//   }, [map]);
+
+//   return null;
+// };
+
 
 function UserLocationUpdater(props: Props) {                                        // take in current user location, display custom pin and fly to that pin
   const map = useMap();                                                             // If no user location, map center is set to default: Chua Mot Cot [21.035993051470584, 105.83367716525659]

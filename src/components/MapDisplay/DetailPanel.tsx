@@ -21,6 +21,7 @@ interface Props {
   onUpdateArtical: (a: Artical) => void;
   onExport: () => void;
   onImport: (file: File) => void;
+  onDeleteArtical: (a: Artical) => void;
 }
 
 const emptyPin: Pin = {
@@ -29,6 +30,14 @@ const emptyPin: Pin = {
   lng: "",
   label: "",
   content: "",
+};
+
+const emptyArtical: Artical = {
+  ID: "",
+  OwnerID: "",
+  List: [],
+  content: "",
+  header: "",
 };
 
 const convertPinsToTreeNodes = (pins: Pin[]): TreeNode[] => {
@@ -48,6 +57,7 @@ const convertPinsToTreeNodes = (pins: Pin[]): TreeNode[] => {
 
 function DetailPanelComponent(prop: Props) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [visibleDeleteArticalDialog, setVisibleDeleteArticalDialog] = useState<boolean>(false);
   const fileUploadRef = useRef<FileUpload | null>(null);
   const customPinContext = useContext(userCustomPin);
   const [visible, setVisible] = useState<boolean>(false);
@@ -59,6 +69,7 @@ function DetailPanelComponent(prop: Props) {
   const { register, handleSubmit, reset } = useForm<Pin>({ defaultValues: pinContext.selectedPin });
   let deleteTarget = useRef<TreeNode>({});
   let customPin = useRef<Pin>(emptyPin);
+  const deleteArticalTarget = useRef<Artical>(emptyArtical);
   const toast = useRef<Toast>(null);
   const [isSync, setIsSync] = useState<boolean>(false);
 
@@ -69,9 +80,28 @@ function DetailPanelComponent(prop: Props) {
     </div>
   );
 
+  const footerDeleteArticalDialog = (
+    <div style={{ display: "flex", padding: "5px", height: "2rem", gap: "1rem" }}>
+      <Button size="large" label="No" icon="pi pi-times" onClick={() => setVisibleDeleteArticalDialog(false)} autoFocus className="p-button-text" />
+      <Button size="large" label="Yes" icon="pi pi-check" onClick={() => DeleteArtical()} severity="danger" />
+    </div>
+  );
+
   const OpenDeleteDialog = (data: TreeNode) => {
     setVisible(true);
     deleteTarget.current = data;
+  };
+
+  const OpenDeleteArticalDialog = (a: Artical)=>{
+    deleteArticalTarget.current=a;
+    setVisibleDeleteArticalDialog(true);
+    // console.log(deleteTarget.current);
+  }
+
+  const DeleteArtical = () => {
+    // console.log(deleteArticalTarget.current);
+    prop.onDeleteArtical(deleteArticalTarget.current);
+    setVisibleDeleteArticalDialog(false);
   };
 
   const handleFileSelect = (event: any) => {
@@ -102,7 +132,8 @@ function DetailPanelComponent(prop: Props) {
   }
 
   const onSubmitNewPin = (p: Pin) => {
-    articalContext.selectedArtical.List.push(p)
+    articalContext.selectedArtical.List.push(p);
+    pinContext.setSelectedPin(p);
     let newPinList = articalContext.selectedArtical.List.concat();
     let newArtical = structuredClone(articalContext.selectedArtical);
     newArtical.List = newPinList;
@@ -191,6 +222,7 @@ function DetailPanelComponent(prop: Props) {
           {articalContext.selectedArtical.ID != "" && (
             <div className="Action" style={{ display: "flex", width: "100%", justifyContent: "end" }}>
               <Button type="button" icon="pi pi-plus" severity="success" rounded onClick={() => { OpenAddPinPanel() }}></Button>
+              <Button type="button" icon="pi pi-trash" severity="danger" rounded onClick={() => { OpenDeleteArticalDialog(articalContext.selectedArtical) }}></Button>
             </div>
           )}
           <div className="table">
@@ -249,11 +281,6 @@ function DetailPanelComponent(prop: Props) {
               }
             </div>
           )}
-          <Dialog header="DELETE PIN CONFIRMATION" visible={visible} position={"right"} style={{ width: '20vw', right: "100px" }} onHide={() => { if (!visible) return; setVisible(false); }} footer={footerContent} draggable={false} resizable={false}>
-            <div style={{ display: "flex", justifyItems: "center", alignItems: "center", height: "100px", padding: "10px" }}>
-              ARE YOU SURE?
-            </div>
-          </Dialog>
           <Sidebar visible={visiblePanel} position="right" onHide={() => setVisiblePanel(false)}>
             <form onSubmit={handleSubmit(data => onSubmitNewPin(data))}>
               <div style={{ display: "inline-flex", alignItems: "center", width: "100%", marginBottom: "1rem" }}>
@@ -280,6 +307,16 @@ function DetailPanelComponent(prop: Props) {
           <FileUpload style={{ height: "2rem", display: "flex", justifyItems: "center" }} ref={fileUploadRef} mode="basic" name="jsonFile" customUpload accept=".json" maxFileSize={1000000} onUpload={OnUpload} chooseLabel={selectedFile ? selectedFile.name : "Upload Json File"} onSelect={handleFileSelect} />
           <Button visible={isSync} style={{ height: "2rem", width: "5rem", display: "flex", justifyItems: "center" }} type="button" icon="pi pi-sync" label="sync" severity="warning" onClick={() => OnClickImport()}></Button>
         </div>
+        <Dialog header="DELETE PIN CONFIRMATION" visible={visible} position={"right"} style={{ width: '20vw', right: "100px" }} onHide={() => { if (!visible) return; setVisible(false); }} footer={footerContent} draggable={false} resizable={false}>
+          <div style={{ display: "flex", justifyItems: "center", alignItems: "center", height: "100px", padding: "10px" }}>
+            ARE YOU SURE?
+          </div>
+        </Dialog>
+        <Dialog header="DELETE ARTICAL CONFIRMATION" visible={visibleDeleteArticalDialog} position={"right"} style={{ width: '20vw', right: "100px" }} onHide={() => { if (!visibleDeleteArticalDialog) return; setVisibleDeleteArticalDialog(false); }} footer={footerDeleteArticalDialog} draggable={false} resizable={false}>
+          <div style={{ display: "flex", justifyItems: "center", alignItems: "center", height: "100px", padding: "10px" }}>
+            ARE YOU SURE?
+          </div>
+        </Dialog>
       </Card>
     </>
   );

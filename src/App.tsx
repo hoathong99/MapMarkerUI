@@ -240,7 +240,7 @@ function App() {
                   <MapMapPanelComponent currentLocation={currentLocation}></MapMapPanelComponent>
                 </div>
                 <div>
-                  <DetailPanel onSubmit={OnSubmitPin} onExport={onExportDB} onImport={OnImport} onUpdateArtical={OnUpdateArtical}></DetailPanel>
+                  <DetailPanel onSubmit={OnSubmitPin} onDeleteArtical={OnDeteleArtical} onExport={onExportDB} onImport={OnImport} onUpdateArtical={OnUpdateArtical}></DetailPanel>
                 </div>
               </FocusPinContext>
             </PinContext.Provider>

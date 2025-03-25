@@ -35,7 +35,8 @@ const MainPanelComponent: React.FC<Props> = (prop: Props) => {
     useState<boolean>(false);
   const [data, setData] = useState<Artical[]>([]);
   const [visibleDeleteDialog, setVisibleDeleteDialog] = useState<boolean>(false);
-  let deleteTarget = useRef<Artical>(emptyArtical);
+  const selectTable = useRef<OrderList>(null);
+  const deleteTarget = useRef<Artical>(emptyArtical);
 
   const footerContent = (
     <div style={{ display: "flex", padding: "5px", height: "2rem", gap: "1rem" }}>
@@ -45,6 +46,7 @@ const MainPanelComponent: React.FC<Props> = (prop: Props) => {
   );
 
   const OnClickArtical = (artical: Artical) => {
+    console.log("clicked");
     articalContext.setSelectedArtical(artical);
   };
 
@@ -58,8 +60,8 @@ const MainPanelComponent: React.FC<Props> = (prop: Props) => {
     setVisibleRegisterPanel(true);
   };
 
-  const OpenDeleteDialog = (a: Artical)=>{
-    deleteTarget.current=a;
+  const OpenDeleteDialog = (a: Artical) => {
+    deleteTarget.current = a;
     setVisibleDeleteDialog(true);
     console.log(deleteTarget.current);
   }
@@ -80,13 +82,13 @@ const MainPanelComponent: React.FC<Props> = (prop: Props) => {
         style={{ display: "flex" }}
         className="InteractiveRow"
       >
-        <div onClick={() => OnClickArtical(item)} style={{ width: "80%" }}>
+        <div onClick={() => OnClickArtical(item)} style={{ width: "100%" }}>
           <div style={{ fontWeight: "bold" }}>{item.header}</div>
           <div>{item.content}</div>
         </div>
-        <div style={{ display: "flex", width: "20%", justifyContent: "end", alignItems: "center", paddingRight: "5px" }}>
+        {/* <div style={{ display: "flex", width: "20%", justifyContent: "end", alignItems: "center", paddingRight: "5px" }}>
           <Button type="button" icon="pi pi-trash" severity="danger" rounded onClick={() => OpenDeleteDialog(item)}></Button>
-        </div>
+        </div> */}
       </div>
     );
   };
@@ -100,7 +102,9 @@ const MainPanelComponent: React.FC<Props> = (prop: Props) => {
                 <Button onClick={() => OpenPanel()}>ADD</Button>
               </div>
               <OrderList
-                dataKey="id"
+                focusOnHover={true}
+                ref={selectTable}
+                dataKey="ID"
                 value={data}
                 itemTemplate={itemTemplate}
                 header="Pin Boxes"
@@ -137,7 +141,7 @@ const MainPanelComponent: React.FC<Props> = (prop: Props) => {
             />
           </div>
           <div style={{ maxHeight: "70vh", overflow: "auto" }}>
-            PIN CONTENT
+            CONTENT
             <InputTextarea
               {...register("content")}
               rows={10}
@@ -145,8 +149,8 @@ const MainPanelComponent: React.FC<Props> = (prop: Props) => {
               style={{ width: "90%" }}
             />
           </div>
-          <div style={{ marginTop: "10px" }}>
-            <Button label="Save" size="large" type="submit" />
+          <div style={{ display: "flex", justifyContent: "center", marginTop: "10px" }}>
+            <Button label="Save" size="large" style={{ width: "5rem" }} type="submit" />
           </div>
         </form>
       </Sidebar>
