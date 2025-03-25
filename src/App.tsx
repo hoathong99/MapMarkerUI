@@ -1,10 +1,12 @@
 import './App.css'
 import MapMapPanelComponent from './components/MapDisplay/MapPanel'
-import { Artical, Pin, sampleArticals } from './components/DTO/interfaces';
+import { Artical, Pin } from './components/DTO/interfaces';
+// import sampleArticals from './components/DTO/interfaces';
 import MainPanelComponent from './components/MapDisplay/MainPanel';
 import DetailPanel from './components/MapDisplay/DetailPanel';
 import { createContext, useEffect, useState } from 'react';
 import { LatLngTuple } from 'leaflet';
+import { v4 as uuidv4 } from 'uuid';
 import "primereact/resources/themes/lara-dark-teal/theme.css";
 import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
@@ -30,10 +32,13 @@ const emptyPin: Pin = {
 //---------------------------INDEPENDENT FUNCTION------------------------------------------------//
 function fetchData(): Artical[] {                                                                            // Should be Server call but use decenterlized localstorage for now
   if (localStorage.getItem("ArticalData")) {
+    // localStorage.setItem('ArticalData', JSON.stringify(sampleArticals));
     // console.log("getting data from LS...");
     return JSON.parse(localStorage.getItem('ArticalData') || "");
   } else {
-    localStorage.setItem('ArticalData', JSON.stringify(sampleArticals));
+    let emptyArray : Artical[] = [];
+    // localStorage.setItem('ArticalData', JSON.stringify(sampleArticals));
+    localStorage.setItem('ArticalData', JSON.stringify(emptyArray));
     return JSON.parse(localStorage.getItem('ArticalData') || "");
   }
 }
@@ -89,7 +94,7 @@ export const userCustomPin = createContext<{                                 //S
 
 //-------------------------------MAIN EXPORT FUNCTION----------------------------------------------------//
 function App() {
-  const [articalLst, setArticalLst] = useState<Artical[]>([]);
+  const [articalLst, setArticalLst] = useState<Artical[]>(fetchData());
   // const [loading, setLoading] = useState(false);
   // const [error, setError] = useState<string | null>(null);
   const [selectedArtical, setSelectedArtical] = useState<Artical>(emptyArtical);
@@ -103,10 +108,6 @@ function App() {
     setArticalLst(fetchData());
   };
 
-  const LoadMoreArtical = () => {
-    // setPage(prevPage => prevPage + 10);
-  }
-
   const OnSubmitPin = (pin: Pin) => {
     if (selectedPin && selectedArtical) {
       updatePin(selectedArtical.ID, pin);
@@ -114,16 +115,27 @@ function App() {
     }
   }
 
-  // const OnAddNewPin = (p:Pin) =>{
-  //   console.log(p);
-  // }
-
   const OnUpdateArtical = (a: Artical) => {
     if (a) {
       UpdateArtical(a);
       loadDataFromLS();
     }
   }
+
+  const OnAddArtical = (a: Artical) =>{
+    if(a){
+      AddArtical(a);
+      loadDataFromLS();
+    }
+  }
+
+  const OnDeteleArtical = (a: Artical) =>{
+    if(a){
+      DeleteArtical(a);
+      loadDataFromLS();
+    }
+  }
+
 
   const onExportDB = () => {
     exportToJson(articalLst, "MapPin");
@@ -138,8 +150,10 @@ function App() {
           if (!Array.isArray(newArticles)) {
             throw new Error("Invalid JSON format. Expected an array of articles.");
           }
-          setArticalLst((prevArticles) => [...prevArticles, ...newArticles]);
-          UpdateLocalStorage(articalLst);
+          let newArticalList = [...articalLst, ...newArticles];
+          setArticalLst(newArticalList);
+          // setArticalLst((prevArticles) => [...prevArticles, ...newArticles]);
+          UpdateLocalStorage(newArticalList);
         }
       } catch (error) {
         alert("Invalid JSON file format!");
@@ -173,6 +187,19 @@ function App() {
     }
   };
 
+  const AddArtical = (arti: Artical) => {
+      arti.ID=uuidv4();
+      let Data = articalLst.concat();
+      Data.push(arti);
+      setArticalLst(Data);
+      UpdateLocalStorage(Data);
+  };
+
+  const DeleteArtical = (arti: Artical) => {
+    let Data = articalLst.filter(artical => artical.ID != arti.ID);
+    setArticalLst(Data);
+    UpdateLocalStorage(Data);
+};
 
 
   //-------------------------------------USE EFFECT UPDATE--------------------------------------//
@@ -199,18 +226,6 @@ function App() {
     }
   }, [articalLst]);
 
-  // useEffect(() => {
-  //   UpdateLocalStorage(articalLst);
-  // }, [articalLst])
-
-  // useEffect(() => {                                                                               // Happen when a pin is submitted
-  //   if (selectedPin && selectedArtical) {
-  //     updatePin(selectedArtical.ID, focusPin);
-  //     UpdateLocalStorage(articalLst);
-  //     loadDataFromLS();
-  //   }
-  // }, [focusPin])
-
   return (
     <>
       <div className='AppContainer'>
@@ -219,7 +234,7 @@ function App() {
             <PinContext.Provider value={{ selectedPin, setSelectedPin }} >
               <FocusPinContext value={{ focusPin, setFocusPin }}>
                 <div>
-                  <MainPanelComponent className="MainPanel" onLoadMore={LoadMoreArtical} articalLst={articalLst}></MainPanelComponent>
+                  <MainPanelComponent className="MainPanel" onSubmitNewArtical={OnAddArtical} onDeleteArtical={OnDeteleArtical} articalLst={articalLst}></MainPanelComponent>
                 </div>
                 <div>
                   <MapMapPanelComponent currentLocation={currentLocation}></MapMapPanelComponent>
