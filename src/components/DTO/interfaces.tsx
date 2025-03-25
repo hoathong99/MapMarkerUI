@@ -1,10 +1,20 @@
+export interface NominatimResult {
+  place_id: number;
+  licence: string;
+  osm_type: string;
+  osm_id: number;
+  lat: string;
+  lon: string;
+  class: string;
+  type: string;
+  place_rank: number;
+  importance: number;
+  addresstype: string;
+  name: string;
+  display_name: string;
+  boundingbox: [string, string, string, string];
+}
 
-// export interface LocationMark {
-//     id: string,
-//     lat: number,
-//     lng: number,
-//     label: string,
-// }
 
 export interface Artical {
     ID: string;

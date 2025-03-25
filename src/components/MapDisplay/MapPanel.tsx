@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { Pin } from "../DTO/interfaces";
+import { Pin, NominatimResult } from "../DTO/interfaces";
 import { ArticalContext, PinContext, userCustomPin } from "../../App";
 import { Marker, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import { MapContainer } from "react-leaflet";
@@ -9,7 +9,8 @@ import L from "leaflet";
 import personIcon from "../../assets/person_pin_circle.png";
 import tempoPinIcon from "../../assets/tempPin.png";
 import customPin from "../../assets/Pin.png";
-// import { OpenStreetMapProvider , GeoSearchControl } from "leaflet-geosearch";
+import { InputText } from "primereact/inputtext";
+import { OrderList } from "primereact/orderlist";
 
 // const emptyPin: Pin = {
 //   id: "",
@@ -48,28 +49,16 @@ interface ClickableMapProps {
   setMarkerPosition: (position: LatLngTuple) => void;
 }
 
-// const SearchField = () => {
-//   const map = useMap();
-//   const provider = new OpenStreetMapProvider();
-//   useEffect(() => {
-//     let searchControl = new OpenStreetMapProvider({
-//       provider,
-//       style: "bar",
-//       showMarker: true,
-//       showPopup: true,
-//     });
-  
-//     map.addControl(searchControl);
-  
-//     // ✅ Correct cleanup function: Removes search control when component unmounts
-//     return () => {
-//       map.removeControl(searchControl);
-//     };
-//   }, [map]);
+const FlyTo = ( props: Props) => {
+  const map = useMap();
+  useEffect(() => {
+    if (props.currentLocation) {
+      map.flyTo(props.currentLocation, 14, { duration: 2 }); // Smooth transition
+    }
+  }, [props.currentLocation, map]);
 
-//   return null;
-// };
-
+  return null;
+};
 
 function UserLocationUpdater(props: Props) {                                        // take in current user location, display custom pin and fly to that pin
   const map = useMap();                                                             // If no user location, map center is set to default: Chua Mot Cot [21.035993051470584, 105.83367716525659]
@@ -106,9 +95,7 @@ function UserLocationUpdater(props: Props) {                                    
 function ClickableMap(setMarkerPosition: ClickableMapProps) {
   useMapEvents({
     click(e) {
-
       setMarkerPosition.setMarkerPosition([e.latlng.lat, e.latlng.lng]); // Convert LatLng to LatLngTuple
-      // useContext(PinContext).setSelectedPin(emptyPin);                    // reset selected pin to empty so current selected pin do popup (tempo fix)
     },
   });
   return null;
@@ -117,18 +104,76 @@ function ClickableMap(setMarkerPosition: ClickableMapProps) {
 function MapMapPanelComponent(props: Props) {
   const articleContext = useContext(ArticalContext);
   const pinContext = useContext(PinContext);
-  // const forcusPinContext = useContext(FocusPinContext);
-  const customPinContext = useContext(userCustomPin);
+  const [textSearch, setTextSearch] = useState<string>("");
+  const [searchResults, setSearchResults] = useState<NominatimResult[]>([]);
   const [markerPosition, setMarkerPosition] = useState<LatLngTuple | null>(null);
+  const [visibleSearchResult, setVisibleSearchResult] = useState(false);
+  const customPinContext = useContext(userCustomPin);
   const markerRefs = useRef<{ [key: string]: L.Marker | null }>({});
+  const [forcusPoint, setForcusPoint] = useState<LatLngTuple | null>(null);
   const initialPosition: LatLngTuple = [21.035993051470584, 105.83367716525659]; // HN inital location  : Chua Mot Cot
+
+  const searchItemTemplate = (item: NominatimResult) => {
+    return (
+      <div onClick={()=>onSelectLocation(item)}>
+        {item.name}|{item.display_name}-{"(" + item.addresstype + ")"}
+      </div>
+    );
+  };
+
   const OnClickPin = (selected: Pin) => {
     pinContext.setSelectedPin(selected);
   };
+
+  const openPopup = (pinId: string) => {
+    // console.log("popup Pin", pinId);
+    if (markerRefs.current[pinId]) {
+      markerRefs.current[pinId]!.openPopup();
+    }
+  };
+
+  const SearchLocation = async (str?: string) => {
+    if (!str) return;
+    if (!str.trim()) return;
+
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(str)}`;
+
+    try {
+      const response = await fetch(url);
+      const data: NominatimResult[] = await response.json();
+      setSearchResults(data);
+    } catch (error) {
+      console.error("Error fetching location:", error);
+    }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // Prevents form submission (if inside a form)
+      SearchLocation(textSearch);
+    }
+  };
+
+  const onSelectLocation = (n: NominatimResult) => {
+    // FlyToLocation(n.lat, n.lon);
+    setForcusPoint([parseFloat(n.lat),parseFloat(n.lon)]);
+    setVisibleSearchResult(false);
+    console.log("select location")
+    setSearchResults([]);
+  }
+
   useEffect(() => {
     // console.log("current Selected Pin", pinContext.selectedPin.id);
     openPopup(pinContext.selectedPin.id);
   }, [pinContext.selectedPin]);
+
+  useEffect(() => {
+    if(searchResults.length>0){
+      setVisibleSearchResult(true);
+    }else{
+      setVisibleSearchResult(false);
+    }
+  }, [searchResults]);
 
   useEffect(() => {
     customPinContext.setCustomPin({
@@ -141,15 +186,16 @@ function MapMapPanelComponent(props: Props) {
     console.log(customPinContext.customPin);
   }, [markerPosition]);
 
-  const openPopup = (pinId: string) => {
-    // console.log("popup Pin", pinId);
-    if (markerRefs.current[pinId]) {
-      markerRefs.current[pinId]!.openPopup();
-    }
-  };
-
   return (
     <>
+      <div className="SearchBar" style={{ display: "block", position: "absolute", top: "2rem", right: "40vw", zIndex: "999", maxWidth:"25vw" }}>
+        <InputText style={{ height: "2rem", width:"100%" }} placeholder="Search" value={textSearch} onChange={(e) => setTextSearch(e.target.value)} onKeyDown={handleKeyDown} />
+        {visibleSearchResult && (
+          <div style={{ maxHeight:"30vh", width:"100%" }}>
+            <OrderList dataKey="place_id" value={searchResults} itemTemplate={searchItemTemplate}></OrderList>
+          </div>
+        )}
+      </div>
       <MapContainer
         center={initialPosition}
         zoom={13}
@@ -160,6 +206,8 @@ function MapMapPanelComponent(props: Props) {
         <UserLocationUpdater
           currentLocation={props.currentLocation}
         ></UserLocationUpdater>
+        <FlyTo currentLocation={forcusPoint||props.currentLocation}>
+        </FlyTo>
         {articleContext.selectedArtical.List.map((item) => (
           <Marker key={item.id}
             icon={pinIcon}
@@ -173,15 +221,14 @@ function MapMapPanelComponent(props: Props) {
               dblclick: () => { OnClickPin(item) },
             }}>
             <Popup>
-                <div style={{display:"flex", justifyContent:"center"}}>
-                  {item.label}
-                </div>
-                <div>
-                  {item.lat}{", "}{item.lng}
-                </div>
+              <div style={{ display: "flex", justifyContent: "center" }}>
+                {item.label}
+              </div>
+              <div>
+                {item.lat}{", "}{item.lng}
+              </div>
             </Popup>
           </Marker>
-
         ))}
         {markerPosition && (
           <Marker position={markerPosition} icon={userCustomPinIcon}>
