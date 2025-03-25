@@ -180,8 +180,8 @@ function DetailPanelComponent(prop: Props) {
   const actionTemplate = (a: TreeNode) => {
     return (
       <div className="buttonGroup">
-        <Button type="button" icon="pi pi-search" severity="info" rounded onClick={FocusOnPin}></Button>
-        <Button type="button" icon="pi pi-trash" severity="danger" rounded onClick={() => OpenDeleteDialog(a)}></Button>
+        {/* <Button type="button" icon="pi pi-search" severity="info" rounded onClick={FocusOnPin}></Button> */}
+        <Button tooltip="Delete pin" tooltipOptions={{ position: "bottom" }} type="button" icon="pi pi-trash" severity="danger" rounded onClick={() => OpenDeleteDialog(a)}></Button>
       </div>
     );
   };
@@ -221,8 +221,8 @@ function DetailPanelComponent(prop: Props) {
         <div className="Body">
           {articalContext.selectedArtical.ID != "" && (
             <div className="Action" style={{ display: "flex", width: "100%", justifyContent: "end" }}>
-              <Button type="button" icon="pi pi-plus" severity="success" rounded onClick={() => { OpenAddPinPanel() }}></Button>
-              <Button type="button" icon="pi pi-trash" severity="danger" rounded onClick={() => { OpenDeleteArticalDialog(articalContext.selectedArtical) }}></Button>
+              <Button type="button" tooltip="Add new pin" tooltipOptions={{ position: "bottom" }} icon="pi pi-plus" severity="success" rounded onClick={() => { OpenAddPinPanel() }}></Button>
+              <Button type="button" tooltip="Delete current artical" tooltipOptions={{ position: "bottom" }} icon="pi pi-trash" severity="danger" rounded onClick={() => { OpenDeleteArticalDialog(articalContext.selectedArtical) }}></Button>
             </div>
           )}
           <div className="table">
@@ -303,9 +303,9 @@ function DetailPanelComponent(prop: Props) {
           <Toast ref={toast} />
         </div>
         <div className="Footer" style={{ display: "flex", justifyContent: "center", gap: "5px" }}>
-          <Button style={{ height: "2rem", width: "5rem", display: "flex", justifyItems: "center" }} type="button" icon="pi pi-file-export" severity="info" onClick={() => OnClickExport()}></Button>
+          <Button style={{ height: "2rem", width: "5rem", display: "flex", justifyItems: "center" }} type="button" icon="pi pi-file-export" severity="info" tooltip="Export all database to json" tooltipOptions={{ position: "bottom" }} onClick={() => OnClickExport()}></Button>
           <FileUpload style={{ height: "2rem", display: "flex", justifyItems: "center" }} ref={fileUploadRef} mode="basic" name="jsonFile" customUpload accept=".json" maxFileSize={1000000} onUpload={OnUpload} chooseLabel={selectedFile ? selectedFile.name : "Upload Json File"} onSelect={handleFileSelect} />
-          <Button visible={isSync} style={{ height: "2rem", width: "5rem", display: "flex", justifyItems: "center" }} type="button" icon="pi pi-sync" label="sync" severity="warning" onClick={() => OnClickImport()}></Button>
+          <Button tooltip="sync uploaded database with localstorage" tooltipOptions={{ position: "bottom" }} visible={isSync} style={{ height: "2rem", width: "5rem", display: "flex", justifyItems: "center" }} type="button" icon="pi pi-sync" label="sync" severity="warning" onClick={() => OnClickImport()}></Button>
         </div>
         <Dialog header="DELETE PIN CONFIRMATION" visible={visible} position={"right"} style={{ width: '20vw', right: "100px" }} onHide={() => { if (!visible) return; setVisible(false); }} footer={footerContent} draggable={false} resizable={false}>
           <div style={{ display: "flex", justifyItems: "center", alignItems: "center", height: "100px", padding: "10px" }}>
