@@ -8,7 +8,7 @@ import { Sidebar } from "primereact/sidebar";
 import { useForm } from "react-hook-form";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
-import { Dialog } from "primereact/dialog";
+import logo from "../../assets/Logo.png"
 
 const emptyArtical: Artical = {
   ID: "",
@@ -34,16 +34,8 @@ const MainPanelComponent: React.FC<Props> = (prop: Props) => {
   const [visibleRegisterPanel, setVisibleRegisterPanel] =
     useState<boolean>(false);
   const [data, setData] = useState<Artical[]>([]);
-  const [visibleDeleteDialog, setVisibleDeleteDialog] = useState<boolean>(false);
   const selectTable = useRef<OrderList>(null);
   const deleteTarget = useRef<Artical>(emptyArtical);
-
-  const footerContent = (
-    <div style={{ display: "flex", padding: "5px", height: "2rem", gap: "1rem" }}>
-      <Button size="large" label="No" icon="pi pi-times" onClick={() => setVisibleDeleteDialog(false)} autoFocus className="p-button-text" />
-      <Button size="large" label="Yes" icon="pi pi-check" onClick={() => DeleteArtical()} severity="danger" />
-    </div>
-  );
 
   const OnClickArtical = (artical: Artical) => {
     console.log("clicked");
@@ -60,18 +52,6 @@ const MainPanelComponent: React.FC<Props> = (prop: Props) => {
     setVisibleRegisterPanel(true);
   };
 
-  const OpenDeleteDialog = (a: Artical) => {
-    deleteTarget.current = a;
-    setVisibleDeleteDialog(true);
-    console.log(deleteTarget.current);
-  }
-
-  const DeleteArtical = () => {
-    console.log(deleteTarget.current);
-    prop.onDeleteArtical(deleteTarget.current);
-    setVisibleDeleteDialog(false);
-  };
-
   useEffect(() => {
     setData(prop.articalLst);
   }, [prop.articalLst]);
@@ -86,9 +66,6 @@ const MainPanelComponent: React.FC<Props> = (prop: Props) => {
           <div style={{ fontWeight: "bold" }}>{item.header}</div>
           <div>{item.content}</div>
         </div>
-        {/* <div style={{ display: "flex", width: "20%", justifyContent: "end", alignItems: "center", paddingRight: "5px" }}>
-          <Button type="button" icon="pi pi-trash" severity="danger" rounded onClick={() => OpenDeleteDialog(item)}></Button>
-        </div> */}
       </div>
     );
   };
@@ -97,10 +74,10 @@ const MainPanelComponent: React.FC<Props> = (prop: Props) => {
       <div className={prop.className || "Container"}>
         <div className="PanelHeader">
           <Sidebar visible={visibleSidePanel} onHide={() => setVisibleSidePanel(false)}>
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <img style={{ margin: "20px", top: "50px" }} src={logo} alt="Logo" height="80px" />
+            </div>
             <div className="Body">
-              <div>
-                <Button onClick={() => OpenPanel()}>ADD</Button>
-              </div>
               <OrderList
                 focusOnHover={true}
                 ref={selectTable}
@@ -109,6 +86,10 @@ const MainPanelComponent: React.FC<Props> = (prop: Props) => {
                 itemTemplate={itemTemplate}
                 header="Pin Boxes"
               ></OrderList>
+              <div style={{ display: "flex", justifyContent: "end", padding: "5px", gap:"5px" }}>
+                <Button style={{ display: "flex", alignItems: "center", height: "2rem" }} className="pi pi-share-alt" size="large" severity="info" onClick={() => OpenPanel()}>Share</Button>
+                <Button style={{ display: "flex", alignItems: "center", height: "2rem" }} className="pi pi-plus" size="large" severity="success" onClick={() => OpenPanel()}>New</Button>
+              </div>
             </div>
           </Sidebar>
           <Button
@@ -154,11 +135,6 @@ const MainPanelComponent: React.FC<Props> = (prop: Props) => {
           </div>
         </form>
       </Sidebar>
-      <Dialog header="DELETE ARTICLE CONFIRMATION" visible={visibleDeleteDialog} position={"center"} style={{ width: '20vw', right: "100px" }} onHide={() => { if (!visibleDeleteDialog) return; setVisibleDeleteDialog(false); }} footer={footerContent} draggable={false} resizable={false}>
-        <div style={{ display: "flex", justifyItems: "center", alignItems: "center", height: "100px", padding: "10px" }}>
-          ARE YOU SURE?
-        </div>
-      </Dialog>
     </>
   );
 };
