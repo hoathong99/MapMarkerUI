@@ -160,10 +160,6 @@ function DetailPanelComponent(prop: Props) {
     toast.current?.show({ severity: 'info', summary: 'Success', detail: 'File Uploaded' });
   };
 
-  const FocusOnPin = () => {
-    // console.log(pinContext.selectedPin.label);
-  }
-
   const OpenAddPinPanel = () => {
     if (customPinContext.customPin.lat != "") {
       setVisiblePanel(true);
