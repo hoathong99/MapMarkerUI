@@ -9,6 +9,7 @@ import L from "leaflet";
 import personIcon from "../../assets/person_pin_circle.png";
 import tempoPinIcon from "../../assets/tempPin.png";
 import customPin from "../../assets/Pin.png";
+import searchPin from "../../assets/searchPin.png";
 import { InputText } from "primereact/inputtext";
 import { OrderList } from "primereact/orderlist";
 
@@ -34,6 +35,13 @@ const pinIcon = L.icon({
   popupAnchor: [0, -32],
 });
 
+const searchPinIcon = L.icon({
+  iconUrl: searchPin,
+  iconSize: [40, 40],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
+
 const userCustomPinIcon = new L.Icon({
   iconUrl: tempoPinIcon,
   iconSize: [32, 32],
@@ -49,15 +57,30 @@ interface ClickableMapProps {
   setMarkerPosition: (position: LatLngTuple) => void;
 }
 
-const FlyTo = ( props: Props) => {
-  const map = useMap();
-  useEffect(() => {
-    if (props.currentLocation) {
-      map.flyTo(props.currentLocation, 14, { duration: 2 }); // Smooth transition
-    }
-  }, [props.currentLocation, map]);
-
-  return null;
+const FlyToDestiny = ( props?: Props) => {
+  if(props){
+    const map = useMap();
+    const [markerPosition, setMarkerPosition] = useState<LatLngTuple | null>(null);
+    const markerRef = useRef<L.Marker | null>(null);
+    useEffect(() => {
+      if (props.currentLocation) {
+        map.flyTo(props.currentLocation, 17, { duration: 2 }); // Smooth transition
+        setMarkerPosition(props.currentLocation);
+      }
+    }, [props.currentLocation, map]);
+  
+    return markerPosition ? (
+      <Marker
+        icon={searchPinIcon}
+        position={markerPosition}
+        ref={(el) => {
+          if (el) markerRef.current = el;
+        }}
+      >
+        <Popup>Your Search</Popup>
+      </Marker>
+    ) : null;
+  }
 };
 
 function UserLocationUpdater(props: Props) {                                        // take in current user location, display custom pin and fly to that pin
@@ -84,13 +107,6 @@ function UserLocationUpdater(props: Props) {                                    
     </Marker>
   ) : null;
 }
-
-// function FocusOnPin(pin? : Pin){
-//   const map = useMap();
-//   if(pin){
-//     map.flyTo([Number(pin.lat), Number(pin.lng)], 14, {duration: 2})
-//   }
-// }
 
 function ClickableMap(setMarkerPosition: ClickableMapProps) {
   useMapEvents({
@@ -206,8 +222,8 @@ function MapMapPanelComponent(props: Props) {
         <UserLocationUpdater
           currentLocation={props.currentLocation}
         ></UserLocationUpdater>
-        <FlyTo currentLocation={forcusPoint||props.currentLocation}>
-        </FlyTo>
+        <FlyToDestiny currentLocation={forcusPoint||undefined}>
+        </FlyToDestiny>
         {articleContext.selectedArtical.List.map((item) => (
           <Marker key={item.id}
             icon={pinIcon}
