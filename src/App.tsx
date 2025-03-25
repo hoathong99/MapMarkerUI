@@ -234,7 +234,7 @@ function App() {
             <PinContext.Provider value={{ selectedPin, setSelectedPin }} >
               <FocusPinContext value={{ focusPin, setFocusPin }}>
                 <div>
-                  <MainPanelComponent className="MainPanel" onSubmitNewArtical={OnAddArtical} onDeleteArtical={OnDeteleArtical} articalLst={articalLst}></MainPanelComponent>
+                  <MainPanelComponent className="MainPanel" onSubmitNewArtical={OnAddArtical} onShareArtical={exportToJson} articalLst={articalLst}></MainPanelComponent>
                 </div>
                 <div>
                   <MapMapPanelComponent currentLocation={currentLocation}></MapMapPanelComponent>
