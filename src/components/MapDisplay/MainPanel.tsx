@@ -27,6 +27,8 @@ interface Props {
 
 const MainPanelComponent: React.FC<Props> = (prop: Props) => {
   const articalContext = useContext(ArticalContext);
+  const [exportData, setExportData] = useState<Artical[]>([]);
+  const [exportDialog, setExportDialog] = useState(false);
   const { register, handleSubmit, reset } = useForm<Artical>({
     defaultValues: emptyArtical,
   });
@@ -36,20 +38,23 @@ const MainPanelComponent: React.FC<Props> = (prop: Props) => {
   const selectTable = useRef<OrderList>(null);
   const selectExportFromTable = useRef<OrderList>(null);
   const selectExportToTable = useRef<OrderList>(null);
-  const [exportData, setExportData] = useState<Artical[]>([]);
-  const [exportDialog, setExportDialog] = useState(false);
 
   const OnClickArtical = (artical: Artical) => {
     articalContext.setSelectedArtical(artical);
   };
 
   const OnClickAddtoExport = (artical: Artical) => {
-    setExportData([...exportData, artical]);
+    exportData.find(a => a===artical)??setExportData([...exportData, artical]);
   }
 
   const OnClickRemoveFromExportList = (artical: Artical) => {
     let temp = exportData.filter(art => art!=artical);
     setExportData(temp);
+  }
+
+  const ClearExportData = () => {
+    setExportDialog(false);
+    setExportData([]);
   }
 
   const onSubmitArtical = (data: Artical) => {
@@ -186,7 +191,7 @@ const MainPanelComponent: React.FC<Props> = (prop: Props) => {
       <Sidebar
         visible={exportDialog}
         position="left"
-        onHide={() => setExportDialog(false)}
+        onHide={() => ClearExportData()}
       >
         <OrderList
           style={{marginBottom:"10px"}}

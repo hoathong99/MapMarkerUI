@@ -1,6 +1,6 @@
 import './App.css'
 import MapMapPanelComponent from './components/MapDisplay/MapPanel'
-import { Artical, Pin } from './components/DTO/interfaces';
+import { Artical, Pin, sampleArticals } from './components/DTO/interfaces';
 // import sampleArticals from './components/DTO/interfaces';
 import MainPanelComponent from './components/MapDisplay/MainPanel';
 import DetailPanel from './components/MapDisplay/DetailPanel';
@@ -36,9 +36,10 @@ function fetchData(): Artical[] {                                               
     // console.log("getting data from LS...");
     return JSON.parse(localStorage.getItem('ArticalData') || "");
   } else {
-    let emptyArray : Artical[] = [];
+    let Array : Artical[] = [];
+    Array = [...Array, ...sampleArticals];
     // localStorage.setItem('ArticalData', JSON.stringify(sampleArticals));
-    localStorage.setItem('ArticalData', JSON.stringify(emptyArray));
+    localStorage.setItem('ArticalData', JSON.stringify(Array));
     return JSON.parse(localStorage.getItem('ArticalData') || "");
   }
 }
