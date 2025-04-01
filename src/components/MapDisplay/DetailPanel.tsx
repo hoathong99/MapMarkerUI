@@ -57,6 +57,9 @@ const convertPinsToTreeNodes = (pins: Pin[]): TreeNode[] => {
 
 function DetailPanelComponent(prop: Props) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [articleHeader, setArticleHeader] = useState("");
+  const [articleContent, setArticleContent] = useState("");
+  const [isEditArticle, setIsEditArticle] = useState(false);
   const [visibleDeleteArticalDialog, setVisibleDeleteArticalDialog] = useState<boolean>(false);
   const fileUploadRef = useRef<FileUpload | null>(null);
   const customPinContext = useContext(userCustomPin);
@@ -92,8 +95,8 @@ function DetailPanelComponent(prop: Props) {
     deleteTarget.current = data;
   };
 
-  const OpenDeleteArticalDialog = (a: Artical)=>{
-    deleteArticalTarget.current=a;
+  const OpenDeleteArticalDialog = (a: Artical) => {
+    deleteArticalTarget.current = a;
     setVisibleDeleteArticalDialog(true);
     // console.log(deleteTarget.current);
   }
@@ -129,6 +132,14 @@ function DetailPanelComponent(prop: Props) {
   const onSubmit = (data: Pin) => {
     prop.onSubmit(data);
     toast.current?.show({ severity: 'info', summary: 'Success', detail: 'Update Completed' });
+  }
+
+  const onSubmitArtical = ()=> {
+    let tempoArticle = articalContext.selectedArtical;
+    tempoArticle.content = articleContent;
+    tempoArticle.header = articleHeader
+    prop.onUpdateArtical(tempoArticle);
+    setIsEditArticle(false);
   }
 
   const onSubmitNewPin = (p: Pin) => {
@@ -185,6 +196,15 @@ function DetailPanelComponent(prop: Props) {
   const ClickOnEditMode = () => {
     setIsEditMode(!isEditMode);
     reset(pinContext.selectedPin);
+    setIsEditArticle(false);
+  }
+
+  const ClickOnEditArticle = () =>{
+    setIsEditArticle(!isEditArticle);
+    setArticleHeader(articalContext.selectedArtical.header);
+    setArticleContent(articalContext.selectedArtical.content);
+    setIsEditMode(false);
+    reset(pinContext.selectedPin);
   }
 
   useEffect(() => {
@@ -211,8 +231,35 @@ function DetailPanelComponent(prop: Props) {
     <>
       <Card className="container">
         <div className="Header">
-          <div style={{ textAlign: "center", padding: "10px", fontWeight: "bold" }}>{articalContext.selectedArtical.header}</div>
-          <div>{articalContext.selectedArtical.content}</div>
+          {/* <div style={{ textAlign: "center", padding: "10px", fontWeight: "bold" }}>{articalContext.selectedArtical.header}</div>
+          <div>{articalContext.selectedArtical.content}</div> */}
+          {!isEditArticle ? (
+            <div>
+              <div style={{ display: "flex", justifyContent: "end" }}>
+                <button className="pi pi-pencil" onClick={() => ClickOnEditArticle()} ></button>
+              </div>
+              <div style={{ textAlign: "center", padding: "10px", fontWeight: "bold" }}>{articalContext.selectedArtical.header}</div>
+              <div>{articalContext.selectedArtical.content}</div>
+            </div>
+          ) : (
+            <div>
+              <div style={{ display: "flex", justifyContent: "end" }}>
+                <button className="pi pi-pencil" onClick={() => ClickOnEditArticle()} ></button>
+              </div>
+              <form onSubmit={()=>onSubmitArtical()}>
+                <div style={{ display: "inline-flex", alignItems: "start", width: "100%", marginBottom: "1rem" }}>
+                  <InputText value={articleHeader} onChange={(e) => setArticleHeader(e.target.value)} style={{ width: "90%", height: "2rem" }} required={true} />
+                </div>
+                <div style={{ maxHeight: "40vh", overflow: "auto" }}>
+                  <InputTextarea value={articleContent} onChange={(e) => setArticleContent(e.target.value)} rows={5} autoResize style={{ width: "100%" }} />
+                </div>
+                <div style={{ marginTop: "10px" }}>
+                  <Button label="Save" size="large" type="submit" />
+                </div>
+              </form>
+            </div>
+          )
+          }
         </div>
         <div className="Body">
           {articalContext.selectedArtical.ID != "" && (
