@@ -134,7 +134,7 @@ function DetailPanelComponent(prop: Props) {
     toast.current?.show({ severity: 'info', summary: 'Success', detail: 'Update Completed' });
   }
 
-  const onSubmitArtical = ()=> {
+  const onSubmitArtical = () => {
     let tempoArticle = articalContext.selectedArtical;
     tempoArticle.content = articleContent;
     tempoArticle.header = articleHeader
@@ -199,7 +199,7 @@ function DetailPanelComponent(prop: Props) {
     setIsEditArticle(false);
   }
 
-  const ClickOnEditArticle = () =>{
+  const ClickOnEditArticle = () => {
     setIsEditArticle(!isEditArticle);
     setArticleHeader(articalContext.selectedArtical.header);
     setArticleContent(articalContext.selectedArtical.content);
@@ -235,9 +235,11 @@ function DetailPanelComponent(prop: Props) {
           <div>{articalContext.selectedArtical.content}</div> */}
           {!isEditArticle ? (
             <div>
-              <div style={{ display: "flex", justifyContent: "end" }}>
-                <button className="pi pi-pencil" onClick={() => ClickOnEditArticle()} ></button>
-              </div>
+              {articalContext.selectedArtical.ID &&
+                <div style={{ display: "flex", justifyContent: "end" }}>
+                  <button className="pi pi-pencil" onClick={() => ClickOnEditArticle()} ></button>
+                </div>
+              }
               <div style={{ textAlign: "center", padding: "10px", fontWeight: "bold" }}>{articalContext.selectedArtical.header}</div>
               <div>{articalContext.selectedArtical.content}</div>
             </div>
@@ -246,7 +248,7 @@ function DetailPanelComponent(prop: Props) {
               <div style={{ display: "flex", justifyContent: "end" }}>
                 <button className="pi pi-pencil" onClick={() => ClickOnEditArticle()} ></button>
               </div>
-              <form onSubmit={()=>onSubmitArtical()}>
+              <form onSubmit={() => onSubmitArtical()}>
                 <div style={{ display: "inline-flex", alignItems: "start", width: "100%", marginBottom: "1rem" }}>
                   <InputText value={articleHeader} onChange={(e) => setArticleHeader(e.target.value)} style={{ width: "90%", height: "2rem" }} required={true} />
                 </div>
