@@ -1,0 +1,4 @@
+-Self center button
+-When click a location, if it is not on the view, move map and center it
+-Adjust UI
+-Add Server to share, access pins online w/o using localstorage
